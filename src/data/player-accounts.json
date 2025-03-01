@@ -1,0 +1,74 @@
+{
+  "12341234": {
+    "name": "12341234",
+    "coins": 5,
+    "experience": 0,
+    "level": 1
+  },
+  "NormanQian": {
+    "name": "NormanQian",
+    "coins": 5,
+    "experience": 0,
+    "level": 1
+  },
+  "Norman123": {
+    "name": "Norman123",
+    "coins": 5,
+    "experience": 0,
+    "level": 1
+  },
+  "NormanQiansadjfn": {
+    "name": "NormanQiansadjfn",
+    "coins": 0,
+    "experience": 0,
+    "level": 1
+  },
+  "NEWPLAYER": {
+    "name": "NEWPLAYER",
+    "coins": 5,
+    "experience": 0,
+    "level": 1
+  },
+  "Player": {
+    "name": "Player",
+    "coins": 8,
+    "experience": 0,
+    "level": 1
+  },
+  "afgsd": {
+    "name": "afgsd",
+    "coins": 0,
+    "experience": 0,
+    "level": 1
+  },
+  "dfnsgl": {
+    "name": "dfnsgl",
+    "coins": 0,
+    "experience": 0,
+    "level": 1
+  },
+  "Norman": {
+    "name": "Norman",
+    "coins": 13,
+    "experience": 0,
+    "level": 1
+  },
+  "ABC": {
+    "name": "ABC",
+    "coins": 25,
+    "experience": 0,
+    "level": 1
+  },
+  "DEF": {
+    "name": "DEF",
+    "coins": 0,
+    "experience": 0,
+    "level": 1
+  },
+  "abc": {
+    "name": "abc",
+    "coins": 0,
+    "experience": 0,
+    "level": 1
+  }
+}
