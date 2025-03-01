@@ -26,12 +26,9 @@ export class Village extends Room<MyRoomState> {
 
     this.setState(new MyRoomState());
 
-    // Load and parse the tilemap
-    const mapPath = path.join(
-      __dirname,
-      "../../../client/dist/assets/VillageMap.tmj"
+    const mapData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../maps/VillageMap.tmj"), "utf8")
     );
-    const mapData = JSON.parse(fs.readFileSync(mapPath, "utf8"));
 
     // Set map dimensions based on tilemap
     this.state.mapWidth = mapData.width * mapData.tilewidth;

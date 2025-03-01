@@ -8,8 +8,9 @@
     "start": "npm run build && node lib/index.js",
     "dev": "tsx watch src/index.ts",
     "loadtest": "colyseus-loadtest loadtest/example.ts --room my_room --numClients 2",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && npm run copy-maps",
     "clean": "rm -rf lib",
+    "copy-maps": "cp -r src/maps lib/",
     "test": "mocha -r tsx test/**_test.ts --exit --timeout 15000"
   },
   "author": "",
