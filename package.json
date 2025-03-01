@@ -27,14 +27,14 @@
     "copyfiles": "^2.4.1",
     "mocha": "^9.0.2",
     "rimraf": "^2.7.1",
-    "tsx": "^3.12.7",
-    "typescript": "^4.6.3"
+    "tsx": "^3.12.7"
   },
   "dependencies": {
     "@colyseus/monitor": "^0.15.1",
     "@colyseus/tools": "^0.15.15",
     "colyseus": "^0.15.0",
     "cors": "^2.8.5",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "typescript": "^4.6.3"
   }
 }
