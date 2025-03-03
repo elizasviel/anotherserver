@@ -5,6 +5,7 @@ import {
   SpawnedMonster,
   SpawnedPlayer,
   SpawnedLoot,
+  Portal,
 } from "./RoomState";
 import {
   MonsterInterface,
@@ -15,9 +16,10 @@ import {
   LOOT_TYPES,
 } from "../gameObjects";
 import { TiledMapParser } from "./TiledMapParser";
-import { playerRegistry } from "../app.config";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
+import { PlayerManager, PlayerData } from "../playerManager";
+import { matchMaker } from "colyseus";
 
 interface MapOptions {
   path: string;
@@ -26,6 +28,16 @@ interface MapOptions {
     spawnInterval: number;
     maxSpawned: number;
     minSpawned: number;
+  }[];
+  portals?: {
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    targetRoom: string;
+    targetX: number;
+    targetY: number;
   }[];
 }
 
@@ -62,10 +74,28 @@ export class map extends Room<MyRoomState> {
       this.state.obstacles.push(obstacle);
     });
 
+    // Initialize portals if provided
+    if (options.portals) {
+      options.portals.forEach((portal) => {
+        this.state.portals.push(
+          new Portal(
+            portal.id,
+            portal.x,
+            portal.y,
+            portal.width,
+            portal.height,
+            portal.targetRoom,
+            portal.targetX,
+            portal.targetY
+          )
+        );
+      });
+    }
+
     //main problem right here
-    this.onMessage(0, (client, input) => {
+    this.onMessage(0, (_, input) => {
       const player = this.state.spawnedPlayers.find(
-        (player) => player.id === client.sessionId
+        (player) => player.username === input.username
       );
       player.inputQueue.push(input);
     });
@@ -108,7 +138,8 @@ export class map extends Room<MyRoomState> {
         nearestLoot.isBeingCollected = true;
         nearestLoot.collectedBy = client.sessionId;
 
-        player.inventory.push(nearestLoot);
+        const currentQuantity = player.inventory.get(nearestLoot.name) || 0;
+        player.inventory.set(nearestLoot.name, currentQuantity + 1);
       }
     });
 
@@ -121,7 +152,7 @@ export class map extends Room<MyRoomState> {
 
       // Broadcast the chat message to all clients
       this.broadcast("chat", {
-        sender: player.name || client.sessionId.substring(0, 6),
+        sender: player.username || client.sessionId.substring(0, 6),
         message: typeof message === "string" ? message : message.text,
         sessionId: client.sessionId,
       });
@@ -134,7 +165,7 @@ export class map extends Room<MyRoomState> {
           (player) => player.id === client.sessionId
         );
         if (player) {
-          player.name = message.name;
+          player.username = message.name;
           this.broadcast("playerNameUpdate", {
             sessionId: client.sessionId,
             name: message.name,
@@ -409,6 +440,15 @@ export class map extends Room<MyRoomState> {
         item.velocityY = 0;
       }
     });
+
+    // Check for portal collisions
+    this.state.spawnedPlayers.forEach((player) => {
+      this.state.portals.forEach((portal) => {
+        if (this.checkCollision(player, portal)) {
+          this.transferPlayerToRoom(player, portal);
+        }
+      });
+    });
   }
 
   private checkCollision(
@@ -485,10 +525,90 @@ export class map extends Room<MyRoomState> {
     }
   }
 
+  private async transferPlayerToRoom(player: SpawnedPlayer, portal: Portal) {
+    const client = this.clients.find((c) => c.sessionId === player.id);
+    if (!client) return;
+
+    // Store player data before transfer
+    const playerManager = PlayerManager.getInstance();
+    const playerData: PlayerData = {
+      id: player.id,
+      username: player.username,
+      experience: player.experience,
+      level: player.level,
+      inventory: player.inventory,
+    };
+
+    playerManager.storePlayerData(player.id, playerData);
+
+    // Create a reservation for the player in the target room
+    try {
+      const targetRoom = await matchMaker.findOneRoomAvailable(
+        portal.targetRoom,
+        {
+          playerId: player.id,
+        }
+      );
+      const reservation = await matchMaker.reserveSeatFor(targetRoom, {
+        playerId: player.id,
+        fromPortal: true,
+        x: portal.targetX,
+        y: portal.targetY,
+      });
+
+      // Send the client the reservation details
+      client.send("roomTransfer", {
+        roomId: reservation.room.roomId,
+        sessionId: reservation.sessionId,
+      });
+
+      // Disconnect from current room (onLeave will be called)
+      client.leave();
+    } catch (e) {
+      console.error("Error transferring player to new room:", e);
+    }
+  }
+
   //new SpawnedPlayer should take in an existing player
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
 
+    // Check if player is coming from another room via portal
+    if (options.fromPortal && options.playerId) {
+      const playerManager = PlayerManager.getInstance();
+      const playerData = playerManager.getPlayerData(options.playerId);
+
+      if (playerData) {
+        // Create player with existing data
+        const player = new SpawnedPlayer(
+          client.sessionId,
+          playerData.username,
+          options.x || 100,
+          options.y || 100,
+          0, // velocityX
+          0, // velocityY
+          playerData.experience,
+          playerData.level,
+          32, // height
+          32, // width
+          [], // inventory - we'll set it directly from playerData.inventory
+          0, // tick
+          false, // isAttacking
+          false, // isGrounded
+          [] // inputQueue
+        );
+
+        // Copy the inventory data
+        Object.entries(playerData.inventory).forEach(([itemName, quantity]) => {
+          player.inventory.set(itemName, quantity);
+        });
+
+        this.state.spawnedPlayers.push(player);
+        return;
+      }
+    }
+
+    // Create new player with empty inventory
     const player = new SpawnedPlayer(
       client.sessionId,
       "Player",
@@ -498,9 +618,9 @@ export class map extends Room<MyRoomState> {
       0,
       0,
       1,
-      this.state.mapWidth * 0.8,
-      this.state.mapHeight * 0.3,
-      [],
+      32,
+      32,
+      [], // Empty inventory array is fine, constructor will initialize MapSchema
       Date.now(),
       false,
       false,
@@ -510,7 +630,34 @@ export class map extends Room<MyRoomState> {
     this.state.spawnedPlayers.push(player);
   }
 
-  onLeave() {}
+  onLeave(client: Client, consented: boolean) {
+    const player = this.state.spawnedPlayers.find(
+      (p) => p.id === client.sessionId
+    );
+    if (!player) return;
+
+    // Store player data if they're transferring rooms (not disconnecting)
+    if (consented) {
+      const playerManager = PlayerManager.getInstance();
+      const playerData: PlayerData = {
+        id: player.id,
+        username: player.username,
+        experience: player.experience,
+        level: player.level,
+        inventory: player.inventory,
+      };
+
+      playerManager.storePlayerData(player.id, playerData);
+    }
+
+    // Remove player from room state
+    const playerIndex = this.state.spawnedPlayers.findIndex(
+      (p) => p.id === client.sessionId
+    );
+    if (playerIndex !== -1) {
+      this.state.spawnedPlayers.splice(playerIndex, 1);
+    }
+  }
 
   onDispose() {}
 }
@@ -520,3 +667,9 @@ export class map extends Room<MyRoomState> {
 //maybe a database?
 //or a file?
 //or a server-side map?
+
+/*
+if we're not entering a room via portal, that means we are connecting to the game. If that's the case, prompt username, load player if found, and set to connected. If not found, create the player.
+*/
+
+//session IDs don't work because they dont persist across rooms.

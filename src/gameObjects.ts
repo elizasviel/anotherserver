@@ -1,3 +1,5 @@
+import { MapSchema } from "@colyseus/schema";
+
 export interface InputData {
   left: boolean;
   right: boolean;
@@ -5,7 +7,9 @@ export interface InputData {
   down: boolean;
   jump: boolean;
   attack: boolean;
+  loot: boolean;
   tick: number;
+  username: string;
 }
 
 export interface ObstacleInterface {
@@ -46,6 +50,11 @@ export interface LootInterface {
   height: number;
 }
 
+export interface InventoryItem {
+  item: LootInterface;
+  quantity: number;
+}
+
 export interface SpawnedLootInterface extends LootInterface {
   id: string;
   x: number;
@@ -59,12 +68,12 @@ export interface SpawnedLootInterface extends LootInterface {
 
 export interface PlayerInterface {
   id: string;
-  name: string;
+  username: string;
   experience: number;
   level: number;
   height: number;
   width: number;
-  inventory: LootInterface[];
+  inventory: MapSchema<number>;
 }
 
 export interface SpawnedPlayerInterface extends PlayerInterface {

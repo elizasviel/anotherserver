@@ -8,6 +8,7 @@ import {
   SpawnedPlayerInterface,
   InputData,
   ObstacleInterface,
+  InventoryItem,
 } from "../gameObjects";
 
 export class Obstacle extends Schema implements ObstacleInterface {
@@ -34,6 +35,12 @@ export class Obstacle extends Schema implements ObstacleInterface {
     this.height = height;
     this.isOneWayPlatform = isOneWayPlatform;
   }
+}
+
+export class Loot extends Schema implements LootInterface {
+  @type("string") name: string = "";
+  @type("number") width: number = 32;
+  @type("number") height: number = 32;
 }
 
 export class SpawnedLoot extends Schema implements SpawnedLootInterface {
@@ -75,9 +82,21 @@ export class SpawnedLoot extends Schema implements SpawnedLootInterface {
   }
 }
 
+export class InputDataSchema extends Schema implements InputData {
+  @type("boolean") left: boolean = false;
+  @type("boolean") right: boolean = false;
+  @type("boolean") up: boolean = false;
+  @type("boolean") down: boolean = false;
+  @type("boolean") jump: boolean = false;
+  @type("boolean") attack: boolean = false;
+  @type("boolean") loot: boolean = false;
+  @type("number") tick: number = 0;
+  @type("string") username: string = "";
+}
+
 export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("string") id: string = "";
-  @type("string") name: string = "";
+  @type("string") username: string = "";
   @type("number") x: number;
   @type("number") y: number;
   @type("number") velocityX: number;
@@ -86,15 +105,15 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("number") level: number = 1;
   @type("number") height: number = 32;
   @type("number") width: number = 32;
-  @type("number") inventory: LootInterface[] = [];
   @type("number") tick: number;
   @type("boolean") isAttacking: boolean;
   @type("boolean") isGrounded: boolean;
-  @type("number") inputQueue: InputData[];
+  @type({ map: "number" }) inventory = new MapSchema<number>();
+  @type([InputDataSchema]) inputQueue: InputDataSchema[] = [];
 
   constructor(
     id: string,
-    name: string,
+    username: string,
     x: number,
     y: number,
     velocityX: number,
@@ -103,7 +122,7 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     level: number,
     height: number,
     width: number,
-    inventory: LootInterface[],
+    inventory: InventoryItem[],
     tick: number,
     isAttacking: boolean,
     isGrounded: boolean,
@@ -111,7 +130,7 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   ) {
     super();
     this.id = id;
-    this.name = name;
+    this.username = username;
     this.x = x;
     this.y = y;
     this.velocityX = velocityX;
@@ -120,11 +139,22 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     this.level = level;
     this.height = height;
     this.width = width;
-    this.inventory = inventory;
+    // Initialize empty MapSchema if no inventory provided
+    this.inventory = new MapSchema<number>();
+    if (inventory && inventory.length > 0) {
+      inventory.forEach((item) => {
+        this.inventory.set(item.item.name, item.quantity);
+      });
+    }
     this.tick = tick;
     this.isAttacking = isAttacking;
     this.isGrounded = isGrounded;
-    this.inputQueue = inputQueue;
+    // Convert input queue to schema objects
+    this.inputQueue = inputQueue.map((input) => {
+      const schemaInput = new InputDataSchema();
+      Object.assign(schemaInput, input);
+      return schemaInput;
+    });
   }
 }
 
@@ -171,6 +201,39 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
   }
 }
 
+export class Portal extends Schema {
+  @type("string") id: string;
+  @type("number") x: number;
+  @type("number") y: number;
+  @type("number") width: number = 64;
+  @type("number") height: number = 64;
+  @type("string") targetRoom: string;
+  @type("number") targetX: number;
+  @type("number") targetY: number;
+  @type("boolean") isOneWayPlatform: boolean = false;
+
+  constructor(
+    id: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    targetRoom: string,
+    targetX: number,
+    targetY: number
+  ) {
+    super();
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.targetRoom = targetRoom;
+    this.targetX = targetX;
+    this.targetY = targetY;
+  }
+}
+
 export class MyRoomState extends Schema {
   @type("number") mapWidth: number;
   @type("number") mapHeight: number;
@@ -179,4 +242,5 @@ export class MyRoomState extends Schema {
   @type([Obstacle]) obstacles = new Array<Obstacle>();
   @type([SpawnedMonster]) spawnedMonsters = new Array<SpawnedMonster>();
   @type([SpawnedLoot]) loot = new Array<SpawnedLoot>();
+  @type([Portal]) portals = new Array<Portal>();
 }
