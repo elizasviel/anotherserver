@@ -8,7 +8,6 @@ import {
   SpawnedPlayerInterface,
   InputData,
   ObstacleInterface,
-  InventoryItem,
 } from "../gameObjects";
 
 export class Obstacle extends Schema implements ObstacleInterface {
@@ -82,18 +81,6 @@ export class SpawnedLoot extends Schema implements SpawnedLootInterface {
   }
 }
 
-export class InputDataSchema extends Schema implements InputData {
-  @type("boolean") left: boolean = false;
-  @type("boolean") right: boolean = false;
-  @type("boolean") up: boolean = false;
-  @type("boolean") down: boolean = false;
-  @type("boolean") jump: boolean = false;
-  @type("boolean") attack: boolean = false;
-  @type("boolean") loot: boolean = false;
-  @type("number") tick: number = 0;
-  @type("string") username: string = "";
-}
-
 export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("string") id: string = "";
   @type("string") username: string = "";
@@ -108,8 +95,7 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("number") tick: number;
   @type("boolean") isAttacking: boolean;
   @type("boolean") isGrounded: boolean;
-  @type({ map: "number" }) inventory = new MapSchema<number>();
-  @type([InputDataSchema]) inputQueue: InputDataSchema[] = [];
+  inputQueue: InputData[];
 
   constructor(
     id: string,
@@ -122,7 +108,6 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     level: number,
     height: number,
     width: number,
-    inventory: InventoryItem[],
     tick: number,
     isAttacking: boolean,
     isGrounded: boolean,
@@ -139,22 +124,10 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     this.level = level;
     this.height = height;
     this.width = width;
-    // Initialize empty MapSchema if no inventory provided
-    this.inventory = new MapSchema<number>();
-    if (inventory && inventory.length > 0) {
-      inventory.forEach((item) => {
-        this.inventory.set(item.item.name, item.quantity);
-      });
-    }
     this.tick = tick;
     this.isAttacking = isAttacking;
     this.isGrounded = isGrounded;
-    // Convert input queue to schema objects
-    this.inputQueue = inputQueue.map((input) => {
-      const schemaInput = new InputDataSchema();
-      Object.assign(schemaInput, input);
-      return schemaInput;
-    });
+    this.inputQueue = inputQueue;
   }
 }
 

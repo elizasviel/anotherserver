@@ -1,25 +1,17 @@
-import { Room, Client } from "colyseus";
 import {
   MyRoomState,
   Obstacle,
-  SpawnedMonster,
-  SpawnedPlayer,
-  SpawnedLoot,
   Portal,
+  SpawnedLoot,
+  SpawnedMonster,
 } from "./RoomState";
-import {
-  MonsterInterface,
-  LootInterface,
-  SpawnedMonsterInterface,
-  SpawnedPlayerInterface,
-  InputData,
-  LOOT_TYPES,
-} from "../gameObjects";
+import { Room, Client } from "colyseus";
+import { playerDataManager, PlayerData } from "../playerData";
+import { SpawnedPlayer } from "./RoomState";
 import { TiledMapParser } from "./TiledMapParser";
+import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
-import * as fs from "fs";
-import { PlayerManager, PlayerData } from "../playerManager";
-import { matchMaker } from "colyseus";
+import { InputData, MonsterInterface } from "../gameObjects";
 
 interface MapOptions {
   path: string;
@@ -43,18 +35,11 @@ interface MapOptions {
 
 export class map extends Room<MyRoomState> {
   private readonly fixedTimeStep = 1000 / 60;
-  private readonly COLLECT_COOLDOWN = 250;
-  private readonly LOOT_LIFETIME = 30000;
-  private lastCollectTime: { [sessionId: string]: number } = {};
 
   onCreate(options: MapOptions) {
-    const { path, monsters } = options;
-
-    this.autoDispose = false;
-
     this.setState(new MyRoomState());
-
-    const mapData = JSON.parse(fs.readFileSync(path, "utf8"));
+    this.autoDispose = false;
+    const mapData = JSON.parse(fs.readFileSync(options.path, "utf8"));
 
     this.state.mapWidth = mapData.width * mapData.tilewidth;
     this.state.mapHeight = mapData.height * mapData.tileheight;
@@ -62,6 +47,7 @@ export class map extends Room<MyRoomState> {
     const colliders = TiledMapParser.parseColliders(mapData);
 
     this.state.obstacles = new Array<Obstacle>();
+    // Initialize obstacles
     colliders.forEach((collider) => {
       const obstacle = new Obstacle(
         uuidv4(),
@@ -92,90 +78,11 @@ export class map extends Room<MyRoomState> {
       });
     }
 
-    //main problem right here
     this.onMessage(0, (_, input) => {
       const player = this.state.spawnedPlayers.find(
         (player) => player.username === input.username
       );
       player.inputQueue.push(input);
-    });
-
-    this.onMessage("collectLoot", (client, _) => {
-      const now = Date.now();
-
-      if (
-        this.lastCollectTime[client.sessionId] &&
-        now - this.lastCollectTime[client.sessionId] < this.COLLECT_COOLDOWN
-      ) {
-        return;
-      }
-
-      this.lastCollectTime[client.sessionId] = now;
-
-      const player = this.state.spawnedPlayers.find(
-        (player) => player.id === client.sessionId
-      );
-      if (!player) return;
-
-      const COLLECT_RANGE = 100;
-      let nearestLoot: SpawnedLoot = null;
-      let nearestDistance = COLLECT_RANGE;
-
-      this.state.loot.forEach((loot, _) => {
-        if (!loot.isBeingCollected) {
-          const dx = player.x - loot.x;
-          const dy = player.y - loot.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearestLoot = loot;
-          }
-        }
-      });
-
-      if (nearestLoot) {
-        nearestLoot.isBeingCollected = true;
-        nearestLoot.collectedBy = client.sessionId;
-
-        const currentQuantity = player.inventory.get(nearestLoot.name) || 0;
-        player.inventory.set(nearestLoot.name, currentQuantity + 1);
-      }
-    });
-
-    // Add message handler for chat messages
-    this.onMessage("chat", (client, message) => {
-      const player = this.state.spawnedPlayers.find(
-        (player) => player.id === client.sessionId
-      );
-      if (!player) return;
-
-      // Broadcast the chat message to all clients
-      this.broadcast("chat", {
-        sender: player.username || client.sessionId.substring(0, 6),
-        message: typeof message === "string" ? message : message.text,
-        sessionId: client.sessionId,
-      });
-    });
-
-    // Add message handler for player name setting
-    this.onMessage("setName", (client, message) => {
-      if (message.name && typeof message.name === "string") {
-        const player = this.state.spawnedPlayers.find(
-          (player) => player.id === client.sessionId
-        );
-        if (player) {
-          player.username = message.name;
-          this.broadcast("playerNameUpdate", {
-            sessionId: client.sessionId,
-            name: message.name,
-          });
-
-          client.send("setName", {
-            name: message.name,
-          });
-        }
-      }
     });
 
     let elapsedTime = 0;
@@ -186,49 +93,76 @@ export class map extends Room<MyRoomState> {
         elapsedTime -= this.fixedTimeStep;
         this.fixedTick(this.fixedTimeStep);
       }
-
-      // Update loot collection and timeout
-      const now = Date.now();
-      for (let i = this.state.loot.length - 1; i >= 0; i--) {
-        const loot = this.state.loot[i];
-
-        // Remove expired loot
-        if (now - loot.spawnTime > this.LOOT_LIFETIME) {
-          this.state.loot.splice(i, 1);
-          continue;
-        }
-
-        // Move collected loot towards player
-        if (loot.isBeingCollected) {
-          const player = this.state.spawnedPlayers.find(
-            (player) => player.id === loot.collectedBy
-          );
-          if (!player) {
-            // Player disconnected, remove the loot
-            this.state.loot.splice(i, 1);
-            continue;
-          }
-
-          const dx = player.x - loot.x;
-          const dy = player.y - loot.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 10) {
-            // Close enough to collect
-            this.state.loot.splice(i, 1);
-            // Here you could add to player's score/inventory
-          } else {
-            // Move towards player
-            const speed = 5;
-            const angle = Math.atan2(dy, dx);
-            loot.velocityX = Math.cos(angle) * speed;
-            loot.velocityY = Math.sin(angle) * speed;
-            loot.x += loot.velocityX;
-            loot.y += loot.velocityY;
-          }
-        }
-      }
     });
+  }
+
+  async onAuth(
+    client: Client,
+    options: { username: string; password: string }
+  ) {
+    const playerData = await playerDataManager.loginPlayer(
+      options.username,
+      options.password
+    );
+    if (!playerData) {
+      throw new Error("Invalid credentials");
+    }
+    return { username: options.username };
+  }
+
+  async onJoin(client: Client, options: any, auth: { username: string }) {
+    const playerData = await playerDataManager.getPlayerData(auth.username);
+    if (!playerData) {
+      throw new Error("Player data not found");
+    }
+
+    // Create a new spawned player with the persisted data
+    const spawnedPlayer = new SpawnedPlayer(
+      client.sessionId,
+      auth.username,
+      playerData.lastX || 100, // Default spawn position
+      playerData.lastY || 100,
+      0, // velocityX
+      0, // velocityY
+      playerData.experience,
+      playerData.level,
+      32, // height
+      32, // width
+      Date.now(),
+      false, // isAttacking
+      true, // isGrounded
+      []
+    );
+
+    this.state.spawnedPlayers.push(spawnedPlayer);
+  }
+
+  onLeave(client: Client) {
+    const player = this.state.spawnedPlayers.find(
+      (p) => p.id === client.sessionId
+    );
+    if (player) {
+      // Save the player's last position and room before they leave
+      playerDataManager.updatePlayerData(player.username, {
+        lastRoom: this.roomName,
+        lastX: player.x,
+        lastY: player.y,
+        experience: player.experience,
+        level: player.level,
+      });
+
+      // Remove the player from the room
+      const index = this.state.spawnedPlayers.findIndex(
+        (p) => p.id === client.sessionId
+      );
+      if (index !== -1) {
+        this.state.spawnedPlayers.splice(index, 1);
+      }
+    }
+  }
+
+  onDispose() {
+    // Clean up any room-specific resources
   }
 
   fixedTick(timeStep: number) {
@@ -304,153 +238,9 @@ export class map extends Room<MyRoomState> {
             break;
           }
         }
-
-        // Handle attack collision with monsters
-        if (player.isAttacking) {
-          const attackRange = 32; // Adjust based on your attack animation
-          this.state.spawnedMonsters.forEach((monster) => {
-            // Check if monster is in attack range
-            const dx = Math.abs(player.x - monster.x);
-            const dy = Math.abs(player.y - monster.y);
-
-            if (dx < attackRange && dy < attackRange && !monster.isHit) {
-              // Deal damage and mark monster as hit for this attack
-              monster.currentHealth -= 20;
-              monster.isHit = true;
-
-              // Reset hit state after the attack animation
-              setTimeout(() => {
-                monster.isHit = false;
-              }, 500); // Adjust timing based on your attack animation duration
-
-              // Remove monster if health depleted
-              if (monster.currentHealth <= 0) {
-                const index = this.state.spawnedMonsters.indexOf(monster);
-                if (index !== -1) {
-                  // Spawn loot before removing the monster
-                  this.spawnLoot(monster.x, monster.y);
-                  this.state.spawnedMonsters.splice(index, 1);
-                }
-              }
-            }
-          });
-        }
-
-        player.tick = input.tick;
       }
-    });
-
-    // Handle monster movement
-    const monsterSpeed = 1;
-
-    this.state.spawnedMonsters.forEach((monster) => {
-      // Store previous position
-      const prevX = monster.x;
-      const prevY = monster.y;
-
-      // Move horizontally
-      monster.x += monster.velocityX * monsterSpeed;
-
-      // Check horizontal collisions
-      let hasCollision = false;
-      for (const obstacle of this.state.obstacles) {
-        if (this.checkCollision(monster, obstacle)) {
-          monster.x = prevX;
-          monster.velocityX *= -1; // Reverse direction
-          hasCollision = true;
-          break;
-        }
-      }
-
-      // Apply gravity
-      monster.velocityY += gravity;
-      monster.y += monster.velocityY;
-
-      // Check vertical collisions
-      monster.isGrounded = false;
-      for (const obstacle of this.state.obstacles) {
-        if (this.checkCollision(monster, obstacle)) {
-          const monsterBottom = prevY + 16;
-          const obstacleTop = obstacle.y - obstacle.height / 2;
-
-          if (monsterBottom <= obstacleTop) {
-            // Landing on top of platform
-            monster.y = obstacleTop - 16;
-            monster.velocityY = 0;
-            monster.isGrounded = true;
-          } else {
-            // Other vertical collisions
-            monster.y = prevY;
-            monster.velocityY = 0;
-          }
-          break;
-        }
-      }
-    });
-
-    // Add loot physics update at the end of fixedTick
-    this.state.loot.forEach((item) => {
-      // Store previous position for collision checking
-      const prevX = item.x;
-      const prevY = item.y;
-
-      // Update position
-      item.x += item.velocityX;
-
-      // Check horizontal collisions with obstacles
-      for (const obstacle of this.state.obstacles) {
-        if (this.checkCollision(item, obstacle)) {
-          item.x = prevX;
-          item.velocityX *= -0.5; // Bounce with reduced velocity
-          break;
-        }
-      }
-
-      // Apply gravity
-      item.velocityY += gravity;
-      item.y += item.velocityY;
-
-      // Check vertical collisions with obstacles
-      for (const obstacle of this.state.obstacles) {
-        if (this.checkCollision(item, obstacle)) {
-          if (item.velocityY > 0) {
-            // Landing on top
-            item.y = obstacle.y - obstacle.height / 2 - 8; // 8 is half of coin size
-            item.velocityY *= -0.5; // Bounce with reduced velocity
-            item.velocityX *= 0.8; // Add friction
-          } else {
-            // Hitting from below
-            item.y = prevY;
-            item.velocityY = 0;
-          }
-          break;
-        }
-      }
-
-      // World bounds check (ground)
-      if (item.y > this.state.mapHeight - 8) {
-        item.y = this.state.mapHeight - 8;
-        item.velocityY *= -0.5;
-        item.velocityX *= 0.8; // Add friction
-      }
-
-      // Optional: Remove coins that have come to rest
-      if (Math.abs(item.velocityX) < 0.01 && Math.abs(item.velocityY) < 0.01) {
-        item.velocityX = 0;
-        item.velocityY = 0;
-      }
-    });
-
-    // Check for portal collisions
-    this.state.spawnedPlayers.forEach((player) => {
-      this.state.portals.forEach((portal) => {
-        if (this.checkCollision(player, portal)) {
-          this.transferPlayerToRoom(player, portal);
-        }
-      });
     });
   }
-
   private checkCollision(
     entity:
       | SpawnedPlayer
@@ -506,170 +296,4 @@ export class map extends Room<MyRoomState> {
       entityTop < obstacleBottom
     );
   }
-
-  private spawnLoot(x: number, y: number) {
-    // Update existing spawnLoot method to include spawnTime
-    for (let i = 0; i < 5; i++) {
-      const loot = new SpawnedLoot(
-        uuidv4(),
-        LOOT_TYPES.smallCoin.name,
-        x,
-        y,
-        (Math.random() - 0.5) * 3,
-        -Math.random() * 4,
-        LOOT_TYPES.smallCoin.width,
-        LOOT_TYPES.smallCoin.height,
-        Date.now()
-      );
-      this.state.loot.push(loot);
-    }
-  }
-
-  private async transferPlayerToRoom(player: SpawnedPlayer, portal: Portal) {
-    const client = this.clients.find((c) => c.sessionId === player.id);
-    if (!client) return;
-
-    // Store player data before transfer
-    const playerManager = PlayerManager.getInstance();
-    const playerData: PlayerData = {
-      id: player.id,
-      username: player.username,
-      experience: player.experience,
-      level: player.level,
-      inventory: player.inventory,
-    };
-
-    playerManager.storePlayerData(player.id, playerData);
-
-    // Create a reservation for the player in the target room
-    try {
-      const targetRoom = await matchMaker.findOneRoomAvailable(
-        portal.targetRoom,
-        {
-          playerId: player.id,
-        }
-      );
-      const reservation = await matchMaker.reserveSeatFor(targetRoom, {
-        playerId: player.id,
-        fromPortal: true,
-        x: portal.targetX,
-        y: portal.targetY,
-      });
-
-      // Send the client the reservation details
-      client.send("roomTransfer", {
-        roomId: reservation.room.roomId,
-        sessionId: reservation.sessionId,
-      });
-
-      // Disconnect from current room (onLeave will be called)
-      client.leave();
-    } catch (e) {
-      console.error("Error transferring player to new room:", e);
-    }
-  }
-
-  //new SpawnedPlayer should take in an existing player
-  onJoin(client: Client, options: any) {
-    console.log(client.sessionId, "joined!");
-
-    // Check if player is coming from another room via portal
-    if (options.fromPortal && options.playerId) {
-      const playerManager = PlayerManager.getInstance();
-      const playerData = playerManager.getPlayerData(options.playerId);
-
-      if (playerData) {
-        // Create player with existing data
-        const player = new SpawnedPlayer(
-          client.sessionId,
-          playerData.username,
-          options.x || 100,
-          options.y || 100,
-          0, // velocityX
-          0, // velocityY
-          playerData.experience,
-          playerData.level,
-          32, // height
-          32, // width
-          [], // inventory - we'll set it directly from playerData.inventory
-          0, // tick
-          false, // isAttacking
-          false, // isGrounded
-          [] // inputQueue
-        );
-
-        // Copy the inventory data
-        Object.entries(playerData.inventory).forEach(([itemName, quantity]) => {
-          player.inventory.set(itemName, quantity);
-        });
-
-        this.state.spawnedPlayers.push(player);
-        return;
-      }
-    }
-
-    // Create new player with empty inventory
-    const player = new SpawnedPlayer(
-      client.sessionId,
-      "Player",
-      this.state.mapWidth * 0.8,
-      this.state.mapHeight * 0.3,
-      0,
-      0,
-      0,
-      1,
-      32,
-      32,
-      [], // Empty inventory array is fine, constructor will initialize MapSchema
-      Date.now(),
-      false,
-      false,
-      []
-    );
-
-    this.state.spawnedPlayers.push(player);
-  }
-
-  onLeave(client: Client, consented: boolean) {
-    const player = this.state.spawnedPlayers.find(
-      (p) => p.id === client.sessionId
-    );
-    if (!player) return;
-
-    // Store player data if they're transferring rooms (not disconnecting)
-    if (consented) {
-      const playerManager = PlayerManager.getInstance();
-      const playerData: PlayerData = {
-        id: player.id,
-        username: player.username,
-        experience: player.experience,
-        level: player.level,
-        inventory: player.inventory,
-      };
-
-      playerManager.storePlayerData(player.id, playerData);
-    }
-
-    // Remove player from room state
-    const playerIndex = this.state.spawnedPlayers.findIndex(
-      (p) => p.id === client.sessionId
-    );
-    if (playerIndex !== -1) {
-      this.state.spawnedPlayers.splice(playerIndex, 1);
-    }
-  }
-
-  onDispose() {}
 }
-
-//from one map to another something's gotta persist.
-//player data, inventory, etc.
-//maybe a database?
-//or a file?
-//or a server-side map?
-
-/*
-if we're not entering a room via portal, that means we are connecting to the game. If that's the case, prompt username, load player if found, and set to connected. If not found, create the player.
-*/
-
-//session IDs don't work because they dont persist across rooms.

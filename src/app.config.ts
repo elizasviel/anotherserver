@@ -1,12 +1,12 @@
 import config from "@colyseus/tools";
 import { Server } from "colyseus";
 import { matchMaker } from "@colyseus/core";
-import { MONSTER_TYPES } from "./gameObjects";
 import { map } from "./rooms/Map";
+import express from "express";
+import authRouter from "./auth";
+import cors from "cors";
 
 let gameServerRef: Server;
-
-const { slime, goblin, skeleton, boar } = MONSTER_TYPES;
 
 export default config({
   options: {
@@ -19,36 +19,9 @@ export default config({
     gameServer.define("forest", map);
     gameServer.define("dungeon", map);
 
-    // Create the village map with a portal to the forest
     (async () => {
       await matchMaker.createRoom("village", {
         path: "./src/Maps/VillageMap.tmj",
-        monsters: [
-          {
-            monsterType: slime,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: goblin,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: skeleton,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: boar,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-        ],
         portals: [
           {
             id: "forest-portal",
@@ -63,35 +36,8 @@ export default config({
         ],
       });
 
-      // Create the forest map with portals to village and dungeon
       await matchMaker.createRoom("forest", {
         path: "./src/Maps/VillageMap.tmj",
-        monsters: [
-          {
-            monsterType: goblin,
-            spawnInterval: 1500,
-            maxSpawned: 8,
-            minSpawned: 3,
-          },
-          {
-            monsterType: slime,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: skeleton,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: boar,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-        ],
         portals: [
           {
             id: "village-portal",
@@ -116,35 +62,8 @@ export default config({
         ],
       });
 
-      // Create the dungeon map with a portal back to the forest
       await matchMaker.createRoom("dungeon", {
         path: "./src/Maps/VillageMap.tmj",
-        monsters: [
-          {
-            monsterType: skeleton,
-            spawnInterval: 2000,
-            maxSpawned: 6,
-            minSpawned: 2,
-          },
-          {
-            monsterType: goblin,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: slime,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-          {
-            monsterType: boar,
-            spawnInterval: 1000,
-            maxSpawned: 10,
-            minSpawned: 5,
-          },
-        ],
         portals: [
           {
             id: "forest-portal",
@@ -162,4 +81,25 @@ export default config({
 
     gameServerRef = gameServer;
   },
+
+  initializeExpress: (app) => {
+    // Enable CORS
+    app.use(
+      cors({
+        origin: "http://localhost:1234", // Your client's URL
+        credentials: true,
+      })
+    );
+
+    // Parse JSON bodies
+    app.use(express.json());
+
+    // Serve auth endpoints
+    app.use("/auth", authRouter);
+
+    // Serve static files from the client directory
+    app.use(express.static("client/dist"));
+  },
 });
+
+//This file

@@ -1,0 +1,50 @@
+import express from "express";
+import { playerDataManager } from "./playerData";
+
+const router = express.Router();
+
+router.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
+  }
+
+  const success = await playerDataManager.registerPlayer(username, password);
+  if (!success) {
+    return res.status(400).json({ error: "Username already exists" });
+  }
+
+  res.json({ message: "Registration successful" });
+});
+
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
+  }
+
+  const playerData = await playerDataManager.loginPlayer(username, password);
+  if (!playerData) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+
+  res.json({
+    message: "Login successful",
+    playerData: {
+      username: playerData.username,
+      experience: playerData.experience,
+      level: playerData.level,
+      lastRoom: playerData.lastRoom,
+      lastX: playerData.lastX,
+      lastY: playerData.lastY,
+    },
+  });
+});
+
+export default router;
