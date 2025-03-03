@@ -1,76 +1,76 @@
 import { Room, Client } from "colyseus";
 import {
-  InputData,
   MyRoomState,
-  Player,
   Obstacle,
-  Monster,
-  Loot,
-  LootType,
+  SpawnedMonster,
+  SpawnedPlayer,
+  SpawnedLoot,
 } from "./RoomState";
+import {
+  MonsterInterface,
+  LootInterface,
+  SpawnedMonsterInterface,
+  SpawnedPlayerInterface,
+  InputData,
+  LOOT_TYPES,
+} from "../gameObjects";
 import { TiledMapParser } from "./TiledMapParser";
-import * as fs from "fs";
-import * as path from "path";
 import { playerRegistry } from "../app.config";
-import { PlayerAccount } from "./PlayerAccount";
+import { v4 as uuidv4 } from "uuid";
+import * as fs from "fs";
 
-export class Village extends Room<MyRoomState> {
-  fixedTimeStep = 1000 / 60;
+interface MapOptions {
+  path: string;
+  monsters: {
+    monsterType: MonsterInterface;
+    spawnInterval: number;
+    maxSpawned: number;
+    minSpawned: number;
+  }[];
+}
+
+export class map extends Room<MyRoomState> {
+  private readonly fixedTimeStep = 1000 / 60;
+  private readonly COLLECT_COOLDOWN = 250;
+  private readonly LOOT_LIFETIME = 30000;
   private lastCollectTime: { [sessionId: string]: number } = {};
-  private readonly COLLECT_COOLDOWN = 250; // 4 times per second (1000ms / 4). Rate limits the collectLoot message from the client
-  private readonly LOOT_LIFETIME = 30000; // 30 seconds in milliseconds
 
-  onCreate(options: any) {
-    // Set autoDispose to false using the accessor
+  onCreate(options: MapOptions) {
+    const { path, monsters } = options;
+
     this.autoDispose = false;
 
     this.setState(new MyRoomState());
 
-    const mapData = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../maps/VillageMap.tmj"), "utf8")
-    );
+    const mapData = JSON.parse(fs.readFileSync(path, "utf8"));
 
-    // Set map dimensions based on tilemap
     this.state.mapWidth = mapData.width * mapData.tilewidth;
     this.state.mapHeight = mapData.height * mapData.tileheight;
 
-    // Parse colliders from tilemap
     const colliders = TiledMapParser.parseColliders(mapData);
 
-    // Initialize the obstacles from tilemap colliders
     this.state.obstacles = new Array<Obstacle>();
     colliders.forEach((collider) => {
-      const obstacle = new Obstacle();
-      obstacle.x = collider.x;
-      obstacle.y = collider.y;
-      obstacle.width = mapData.tilewidth;
-      obstacle.height = mapData.tileheight;
-      obstacle.isOneWayPlatform = collider.isOneWay;
+      const obstacle = new Obstacle(
+        uuidv4(),
+        collider.x,
+        collider.y,
+        mapData.tilewidth,
+        mapData.tileheight,
+        collider.isOneWay
+      );
       this.state.obstacles.push(obstacle);
     });
 
-    // Update monster spawn logic
-    for (let i = 0; i < 5; i++) {
-      const spawnPos = {
-        x: this.state.mapWidth * 0.2,
-        y: this.state.mapHeight * 0.3,
-      };
-      const monster = new Monster();
-      monster.x = spawnPos.x;
-      monster.y = spawnPos.y;
-      this.state.monsters.push(monster);
-    }
-
+    //main problem right here
     this.onMessage(0, (client, input) => {
-      // handle player input
-      const player = this.state.players.get(client.sessionId);
-
-      // enqueue input to user input buffer.
+      const player = this.state.spawnedPlayers.find(
+        (player) => player.id === client.sessionId
+      );
       player.inputQueue.push(input);
     });
 
-    // Add message handler for collect attempts
-    this.onMessage("collectLoot", (client, message) => {
+    this.onMessage("collectLoot", (client, _) => {
       const now = Date.now();
 
       if (
@@ -82,14 +82,16 @@ export class Village extends Room<MyRoomState> {
 
       this.lastCollectTime[client.sessionId] = now;
 
-      const player = this.state.players.get(client.sessionId);
+      const player = this.state.spawnedPlayers.find(
+        (player) => player.id === client.sessionId
+      );
       if (!player) return;
 
       const COLLECT_RANGE = 100;
-      let nearestLoot: Loot = null;
+      let nearestLoot: SpawnedLoot = null;
       let nearestDistance = COLLECT_RANGE;
 
-      this.state.loot.forEach((loot, index) => {
+      this.state.loot.forEach((loot, _) => {
         if (!loot.isBeingCollected) {
           const dx = player.x - loot.x;
           const dy = player.y - loot.y;
@@ -106,20 +108,20 @@ export class Village extends Room<MyRoomState> {
         nearestLoot.isBeingCollected = true;
         nearestLoot.collectedBy = client.sessionId;
 
-        if (nearestLoot.type === LootType.COIN) {
-          player.data.coins += nearestLoot.value;
-        }
+        player.inventory.push(nearestLoot);
       }
     });
 
     // Add message handler for chat messages
     this.onMessage("chat", (client, message) => {
-      const player = this.state.players.get(client.sessionId);
+      const player = this.state.spawnedPlayers.find(
+        (player) => player.id === client.sessionId
+      );
       if (!player) return;
 
       // Broadcast the chat message to all clients
       this.broadcast("chat", {
-        sender: player.data.name || client.sessionId.substring(0, 6),
+        sender: player.name || client.sessionId.substring(0, 6),
         message: typeof message === "string" ? message : message.text,
         sessionId: client.sessionId,
       });
@@ -128,55 +130,19 @@ export class Village extends Room<MyRoomState> {
     // Add message handler for player name setting
     this.onMessage("setName", (client, message) => {
       if (message.name && typeof message.name === "string") {
-        const player = this.state.players.get(client.sessionId);
+        const player = this.state.spawnedPlayers.find(
+          (player) => player.id === client.sessionId
+        );
         if (player) {
-          // Store the player's name in player.data
-          player.data.name = message.name;
-
-          // Broadcast the name change to all clients with the sessionId
+          player.name = message.name;
           this.broadcast("playerNameUpdate", {
             sessionId: client.sessionId,
             name: message.name,
           });
 
-          // Also send a confirmation back to the client who set their name
           client.send("setName", {
             name: message.name,
           });
-        }
-      }
-    });
-
-    // Add message handler for player login
-    this.onMessage("login", (client, message) => {
-      if (message.username && typeof message.username === "string") {
-        const username = message.username.trim();
-
-        if (username.length > 0) {
-          // Get player data from account system
-          const playerData = PlayerAccount.getPlayerData(username);
-
-          // Update player data in the game
-          const player = this.state.players.get(client.sessionId);
-          if (player) {
-            player.data = playerData;
-
-            // Store username in registry
-            playerRegistry.set(client.sessionId, username);
-
-            // Broadcast a system message about the player's login
-            this.broadcast("system", {
-              message: `Player ${username} has logged in!`,
-            });
-
-            // Send login success to client
-            client.send("loginSuccess", {
-              username: username,
-              coins: playerData.coins,
-              experience: playerData.experience,
-              level: playerData.level,
-            });
-          }
         }
       }
     });
@@ -203,7 +169,9 @@ export class Village extends Room<MyRoomState> {
 
         // Move collected loot towards player
         if (loot.isBeingCollected) {
-          const player = this.state.players.get(loot.collectedBy);
+          const player = this.state.spawnedPlayers.find(
+            (player) => player.id === loot.collectedBy
+          );
           if (!player) {
             // Player disconnected, remove the loot
             this.state.loot.splice(i, 1);
@@ -237,7 +205,7 @@ export class Village extends Room<MyRoomState> {
     const gravity = 0.5;
     const jumpVelocity = -12;
 
-    this.state.players.forEach((player) => {
+    this.state.spawnedPlayers.forEach((player) => {
       let input: InputData;
 
       while ((input = player.inputQueue.shift())) {
@@ -257,7 +225,7 @@ export class Village extends Room<MyRoomState> {
           // Handle horizontal movement
           if (input.left) {
             player.x -= horizontalVelocity;
-            player.isFacingLeft = true; // Update facing direction
+
             // Check horizontal collision
             for (const obstacle of this.state.obstacles) {
               if (this.checkCollision(player, obstacle)) {
@@ -267,7 +235,6 @@ export class Village extends Room<MyRoomState> {
             }
           } else if (input.right) {
             player.x += horizontalVelocity;
-            player.isFacingLeft = false; // Update facing direction
             // Check horizontal collision
             for (const obstacle of this.state.obstacles) {
               if (this.checkCollision(player, obstacle)) {
@@ -310,14 +277,14 @@ export class Village extends Room<MyRoomState> {
         // Handle attack collision with monsters
         if (player.isAttacking) {
           const attackRange = 32; // Adjust based on your attack animation
-          this.state.monsters.forEach((monster) => {
+          this.state.spawnedMonsters.forEach((monster) => {
             // Check if monster is in attack range
             const dx = Math.abs(player.x - monster.x);
             const dy = Math.abs(player.y - monster.y);
 
             if (dx < attackRange && dy < attackRange && !monster.isHit) {
               // Deal damage and mark monster as hit for this attack
-              monster.health -= 20;
+              monster.currentHealth -= 20;
               monster.isHit = true;
 
               // Reset hit state after the attack animation
@@ -326,12 +293,12 @@ export class Village extends Room<MyRoomState> {
               }, 500); // Adjust timing based on your attack animation duration
 
               // Remove monster if health depleted
-              if (monster.health <= 0) {
-                const index = this.state.monsters.indexOf(monster);
+              if (monster.currentHealth <= 0) {
+                const index = this.state.spawnedMonsters.indexOf(monster);
                 if (index !== -1) {
                   // Spawn loot before removing the monster
                   this.spawnLoot(monster.x, monster.y);
-                  this.state.monsters.splice(index, 1);
+                  this.state.spawnedMonsters.splice(index, 1);
                 }
               }
             }
@@ -345,7 +312,7 @@ export class Village extends Room<MyRoomState> {
     // Handle monster movement
     const monsterSpeed = 1;
 
-    this.state.monsters.forEach((monster) => {
+    this.state.spawnedMonsters.forEach((monster) => {
       // Store previous position
       const prevX = monster.x;
       const prevY = monster.y;
@@ -445,10 +412,14 @@ export class Village extends Room<MyRoomState> {
   }
 
   private checkCollision(
-    entity: Player | Monster | Loot | { x: number; y: number },
+    entity:
+      | SpawnedPlayer
+      | SpawnedMonster
+      | SpawnedLoot
+      | { x: number; y: number },
     obstacle: Obstacle
   ): boolean {
-    const entitySize = entity instanceof Loot ? 8 : 16; // smaller size for coins
+    const entitySize = entity instanceof SpawnedLoot ? 8 : 16; // smaller size for coins
     const obstacleHalfWidth = obstacle.width / 2;
     const obstacleHalfHeight = obstacle.height / 2;
 
@@ -468,7 +439,9 @@ export class Village extends Room<MyRoomState> {
       // 1. Entity is moving downward (has velocityY property and it's positive)
       // 2. Entity's bottom was above the platform's top in the previous frame
       if ("velocityY" in entity) {
-        const velocityY = (entity as Player | Monster | Loot).velocityY;
+        const velocityY = (
+          entity as SpawnedPlayer | SpawnedMonster | SpawnedLoot
+        ).velocityY;
         if (velocityY >= 0) {
           // Get the previous Y position (stored before applying gravity)
           const prevY = entityBottom - velocityY;
@@ -497,74 +470,53 @@ export class Village extends Room<MyRoomState> {
   private spawnLoot(x: number, y: number) {
     // Update existing spawnLoot method to include spawnTime
     for (let i = 0; i < 5; i++) {
-      const loot = new Loot();
-      loot.type = LootType.COIN;
-      loot.x = x;
-      loot.y = y;
-      loot.value = 1;
-      loot.spawnTime = Date.now();
-      loot.velocityX = (Math.random() - 0.5) * 3;
-      loot.velocityY = -Math.random() * 4;
+      const loot = new SpawnedLoot(
+        uuidv4(),
+        LOOT_TYPES.smallCoin.name,
+        x,
+        y,
+        (Math.random() - 0.5) * 3,
+        -Math.random() * 4,
+        LOOT_TYPES.smallCoin.width,
+        LOOT_TYPES.smallCoin.height,
+        Date.now()
+      );
       this.state.loot.push(loot);
     }
   }
 
+  //new SpawnedPlayer should take in an existing player
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
 
-    const spawnPos = {
-      x: this.state.mapWidth * 0.8,
-      y: this.state.mapHeight * 0.3,
-    };
-    const player = new Player();
-    player.x = spawnPos.x;
-    player.y = spawnPos.y;
+    const player = new SpawnedPlayer(
+      client.sessionId,
+      "Player",
+      this.state.mapWidth * 0.8,
+      this.state.mapHeight * 0.3,
+      0,
+      0,
+      0,
+      1,
+      this.state.mapWidth * 0.8,
+      this.state.mapHeight * 0.3,
+      [],
+      Date.now(),
+      false,
+      false,
+      []
+    );
 
-    // Initialize with default player data
-    this.state.players.set(client.sessionId, player);
-
-    // Use player name from registry if available
-    const username = playerRegistry.get(client.sessionId);
-    if (username) {
-      // Get player data from account system
-      player.data = PlayerAccount.getPlayerData(username);
-
-      // Use player name from data
-      const playerName = player.data.name || client.sessionId.substring(0, 6);
-
-      this.broadcast("system", {
-        message: `Player ${playerName} has joined the game`,
-      });
-    } else {
-      this.broadcast("system", {
-        message: `New player has joined the game`,
-      });
-    }
+    this.state.spawnedPlayers.push(player);
   }
 
-  onLeave(client: Client, consented: boolean) {
-    console.log(client.sessionId, "left!");
+  onLeave() {}
 
-    // Save player data before removing
-    const player = this.state.players.get(client.sessionId);
-    const username = playerRegistry.get(client.sessionId);
-
-    if (player && username) {
-      // Update player account with latest data
-      PlayerAccount.updatePlayerData(username, player.data);
-    }
-
-    this.state.players.delete(client.sessionId);
-
-    // Get player name from registry
-    const playerName = username || client.sessionId.substring(0, 6);
-
-    this.broadcast("system", {
-      message: `Player ${playerName} has left the game`,
-    });
-  }
-
-  onDispose() {
-    console.log("room", this.roomId, "disposing...");
-  }
+  onDispose() {}
 }
+
+//from one map to another something's gotta persist.
+//player data, inventory, etc.
+//maybe a database?
+//or a file?
+//or a server-side map?

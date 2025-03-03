@@ -1,84 +1,182 @@
-import { Schema, Context, type, MapSchema } from "@colyseus/schema";
+import { Schema, type, MapSchema } from "@colyseus/schema";
+import {
+  MonsterInterface,
+  SpawnedMonsterInterface,
+  LootInterface,
+  SpawnedLootInterface,
+  PlayerInterface,
+  SpawnedPlayerInterface,
+  InputData,
+  ObstacleInterface,
+} from "../gameObjects";
 
-export interface InputData {
-  left: false;
-  right: false;
-  up: false;
-  down: false;
-  jump: false;
-  attack: false;
-  tick: number;
-}
-
-export class PlayerData extends Schema {
-  @type("string") name: string = "";
-  @type("number") coins: number = 0;
-  @type("number") experience: number = 0;
-  @type("number") level: number = 1;
-  // Add other persistent player data here
-}
-
-export class Player extends Schema {
-  @type("number") x: number;
-  @type("number") y: number;
-  @type("number") velocityY: number = 0;
-  @type("number") tick: number;
-  @type("boolean") isAttacking: boolean = false;
-  @type("boolean") isGrounded: boolean = false;
-  @type("boolean") isFacingLeft: boolean = false;
-  @type("number") height: number = 32;
-  @type(PlayerData) data = new PlayerData();
-
-  inputQueue: InputData[] = [];
-}
-
-export class Obstacle extends Schema {
+export class Obstacle extends Schema implements ObstacleInterface {
+  @type("string") id: string;
   @type("number") x: number;
   @type("number") y: number;
   @type("number") width: number;
   @type("number") height: number;
-  @type("boolean") isOneWayPlatform: boolean = false;
+  @type("boolean") isOneWayPlatform: boolean;
+
+  constructor(
+    id: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    isOneWayPlatform: boolean
+  ) {
+    super();
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.isOneWayPlatform = isOneWayPlatform;
+  }
 }
 
-export class Monster extends Schema {
-  @type("number") x: number;
-  @type("number") y: number;
-  @type("number") velocityX: number = 1; // Initial movement direction
-  @type("number") velocityY: number = 0;
-  @type("boolean") isGrounded: boolean = false;
-  @type("number") health: number = 100;
-  @type("boolean") isHit: boolean = false;
-  @type("number") height: number = 32;
-  @type("number") patrolStartX: number;
-  @type("number") patrolDirection: number = 1;
-}
-
-export enum LootType {
-  COIN = "coin",
-  // Add more types as needed:
-  // GEM = 'gem',
-  // POTION = 'potion',
-  // etc.
-}
-
-export class Loot extends Schema {
-  @type("string") type: LootType;
+export class SpawnedLoot extends Schema implements SpawnedLootInterface {
+  @type("string") id: string = "";
+  @type("string") name: string = "";
   @type("number") x: number;
   @type("number") y: number;
   @type("number") velocityX: number = 0;
   @type("number") velocityY: number = 0;
-  @type("number") value: number = 1;
+  @type("number") width: number = 32;
+  @type("number") height: number = 32;
   @type("number") spawnTime: number = Date.now();
-  @type("string") collectedBy: string = null; // Player sessionId who's collecting it
+  @type("string") collectedBy: string = null;
   @type("boolean") isBeingCollected: boolean = false;
+
+  constructor(
+    id: string,
+    name: string,
+    x: number,
+    y: number,
+    velocityX: number,
+    velocityY: number,
+    width: number,
+    height: number,
+    spawnTime: number
+  ) {
+    super();
+    this.id = id;
+    this.name = name;
+    this.x = x;
+    this.y = y;
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
+    this.width = width;
+    this.height = height;
+    this.spawnTime = spawnTime;
+    this.collectedBy = null;
+    this.isBeingCollected = false;
+  }
+}
+
+export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
+  @type("string") id: string = "";
+  @type("string") name: string = "";
+  @type("number") x: number;
+  @type("number") y: number;
+  @type("number") velocityX: number;
+  @type("number") velocityY: number;
+  @type("number") experience: number = 0;
+  @type("number") level: number = 1;
+  @type("number") height: number = 32;
+  @type("number") width: number = 32;
+  @type("number") inventory: LootInterface[] = [];
+  @type("number") tick: number;
+  @type("boolean") isAttacking: boolean;
+  @type("boolean") isGrounded: boolean;
+  @type("number") inputQueue: InputData[];
+
+  constructor(
+    id: string,
+    name: string,
+    x: number,
+    y: number,
+    velocityX: number,
+    velocityY: number,
+    experience: number,
+    level: number,
+    height: number,
+    width: number,
+    inventory: LootInterface[],
+    tick: number,
+    isAttacking: boolean,
+    isGrounded: boolean,
+    inputQueue: InputData[]
+  ) {
+    super();
+    this.id = id;
+    this.name = name;
+    this.x = x;
+    this.y = y;
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
+    this.experience = experience;
+    this.level = level;
+    this.height = height;
+    this.width = width;
+    this.inventory = inventory;
+    this.tick = tick;
+    this.isAttacking = isAttacking;
+    this.isGrounded = isGrounded;
+    this.inputQueue = inputQueue;
+  }
+}
+
+export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
+  @type("string") name: string = "";
+  @type("number") maxHealth: number;
+  @type("number") damage: number;
+  @type("number") speed: number;
+  @type("number") height: number;
+  @type("number") width: number;
+  @type("number") detectionRange: number;
+  @type("number") experience: number;
+  @type("number") potentialLoot: LootInterface[];
+  @type("string") id: string = "";
+  @type("number") x: number;
+  @type("number") y: number;
+  @type("number") velocityX: number;
+  @type("number") velocityY: number;
+  @type("number") currentHealth: number;
+  @type("boolean") isGrounded: boolean;
+  @type("boolean") isHit: boolean;
+
+  constructor(
+    id: string,
+    monsterType: MonsterInterface,
+    spawnX: number,
+    spawnY: number
+  ) {
+    super();
+    this.id = id;
+    this.name = monsterType.name;
+    this.x = spawnX;
+    this.y = spawnY;
+
+    // Copy properties from monsterType
+    this.maxHealth = monsterType.maxHealth;
+    this.currentHealth = monsterType.maxHealth;
+    this.damage = monsterType.damage;
+    this.speed = monsterType.speed;
+    this.height = monsterType.height;
+    this.width = monsterType.width;
+    this.detectionRange = monsterType.detectionRange;
+    this.experience = monsterType.experience;
+  }
 }
 
 export class MyRoomState extends Schema {
   @type("number") mapWidth: number;
   @type("number") mapHeight: number;
 
-  @type({ map: Player }) players = new MapSchema<Player>();
+  @type([SpawnedPlayer]) spawnedPlayers = new Array<SpawnedPlayer>();
   @type([Obstacle]) obstacles = new Array<Obstacle>();
-  @type([Monster]) monsters = new Array<Monster>();
-  @type([Loot]) loot = new Array<Loot>();
+  @type([SpawnedMonster]) spawnedMonsters = new Array<SpawnedMonster>();
+  @type([SpawnedLoot]) loot = new Array<SpawnedLoot>();
 }
