@@ -18,6 +18,7 @@ router.post("/register", async (req, res) => {
   }
 
   res.json({ message: "Registration successful" });
+  console.log("AUTH: Registered player:", username, password);
 });
 
 router.post("/login", async (req, res) => {
@@ -45,6 +46,7 @@ router.post("/login", async (req, res) => {
       lastY: playerData.lastY,
     },
   });
+  console.log("AUTH: Logged in player:", username, password, playerData);
 });
 
 export default router;

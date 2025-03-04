@@ -37,6 +37,7 @@ export class map extends Room<MyRoomState> {
   private readonly fixedTimeStep = 1000 / 60;
 
   onCreate(options: MapOptions) {
+    console.log("MAP: Creating map", options);
     this.setState(new MyRoomState());
     this.autoDispose = false;
     const mapData = JSON.parse(fs.readFileSync(options.path, "utf8"));
@@ -60,6 +61,8 @@ export class map extends Room<MyRoomState> {
       this.state.obstacles.push(obstacle);
     });
 
+    console.log("MAP: Obstacles", this.state.obstacles);
+
     // Initialize portals if provided
     if (options.portals) {
       options.portals.forEach((portal) => {
@@ -78,11 +81,14 @@ export class map extends Room<MyRoomState> {
       });
     }
 
+    console.log("MAP: Portals", this.state.portals);
+
     this.onMessage(0, (_, input) => {
       const player = this.state.spawnedPlayers.find(
         (player) => player.username === input.username
       );
       player.inputQueue.push(input);
+      console.log("MAP: Player input", input);
     });
 
     let elapsedTime = 0;
@@ -108,6 +114,7 @@ export class map extends Room<MyRoomState> {
       throw new Error("Invalid credentials");
     }
     return { username: options.username };
+    console.log("MAP: Auth successful", playerData);
   }
 
   async onJoin(client: Client, options: any, auth: { username: string }) {
@@ -135,6 +142,12 @@ export class map extends Room<MyRoomState> {
     );
 
     this.state.spawnedPlayers.push(spawnedPlayer);
+    console.log(
+      "MAP: Spawned player",
+      spawnedPlayer,
+      "NEW STATE",
+      this.state.spawnedPlayers
+    );
   }
 
   onLeave(client: Client) {
@@ -159,6 +172,12 @@ export class map extends Room<MyRoomState> {
         this.state.spawnedPlayers.splice(index, 1);
       }
     }
+    console.log(
+      "MAP: Player left",
+      player,
+      "NEW STATE",
+      this.state.spawnedPlayers
+    );
   }
 
   onDispose() {

@@ -38,12 +38,15 @@ class PlayerDataManager {
       if (fs.existsSync(this.dataPath)) {
         const data = JSON.parse(fs.readFileSync(this.dataPath, "utf-8"));
         this.players = new Map(Object.entries(data));
-        console.log("Loaded player data:", Object.fromEntries(this.players));
+        console.log(
+          "MANAGER: Loaded player data:",
+          Object.fromEntries(this.players)
+        );
       } else {
-        console.log("No player data file found at:", this.dataPath);
+        console.log("MANAGER: No player data file found at:", this.dataPath);
       }
     } catch (error) {
-      console.error("Error loading player data:", error);
+      console.error("MANAGER: Error loading player data:", error);
     }
   }
 
@@ -51,8 +54,9 @@ class PlayerDataManager {
     try {
       const data = Object.fromEntries(this.players);
       fs.writeFileSync(this.dataPath, JSON.stringify(data, null, 2));
+      console.log("MANAGER: Saved player data:", data);
     } catch (error) {
-      console.error("Error saving player data:", error);
+      console.error("MANAGER: Error saving player data:", error);
     }
   }
 
@@ -73,6 +77,7 @@ class PlayerDataManager {
 
     this.players.set(username, playerData);
     this.saveData();
+    console.log("MANAGER: Registered player:", playerData);
     return true;
   }
 
@@ -84,6 +89,7 @@ class PlayerDataManager {
     if (!playerData || playerData.password !== password) {
       return null;
     }
+    console.log("MANAGER: Logged in player:", playerData);
     return playerData;
   }
 
@@ -98,11 +104,14 @@ class PlayerDataManager {
 
     Object.assign(playerData, data);
     this.saveData();
+    console.log("MANAGER: Updated player data:", playerData);
     return true;
   }
 
   public async getPlayerData(username: string): Promise<PlayerData | null> {
-    return this.players.get(username) || null;
+    const playerData = this.players.get(username);
+    console.log("MANAGER: Retrieved player data:", playerData);
+    return playerData || null;
   }
 }
 
