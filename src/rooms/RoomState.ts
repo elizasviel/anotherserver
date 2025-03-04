@@ -211,3 +211,14 @@ export class MyRoomState extends Schema {
   @type([SpawnedLoot]) loot = new Array<SpawnedLoot>();
   @type([Portal]) portals = new Array<Portal>();
 }
+
+//Room data is a superset of persisted data
+//Experience is persisted because we need it to be constant across rooms
+
+//Room data (in RoomState.ts) contains everything needed for the current game state, including transient data like player positions, velocities, input queues, etc.
+//Persisted data (in playerData.ts) contains only the essential data that needs to persist between sessions and across different rooms.
+
+//Experience is indeed a good example of data that needs to be persisted because:
+//It's accumulated across different rooms
+//It shouldn't reset when changing rooms or logging out
+//It's part of the player's progression

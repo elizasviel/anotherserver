@@ -82,6 +82,12 @@ export class map extends Room<MyRoomState> {
       const player = this.state.spawnedPlayers.find(
         (player) => player.username === input.username
       );
+      if (!player) {
+        console.warn(
+          `MAP: Player not found for input from username: ${input.username}`
+        );
+        return;
+      }
       player.inputQueue.push(input);
     });
 
