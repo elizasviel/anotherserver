@@ -1,11 +1,20 @@
 {
+  "123": {
+    "username": "123",
+    "password": "123",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "village",
+    "lastX": 100,
+    "lastY": 100
+  },
   "1234": {
     "username": "1234",
     "password": "1234",
     "experience": 0,
     "level": 1,
     "lastRoom": "village",
-    "lastX": 100,
-    "lastY": 100
+    "lastX": 190,
+    "lastY": 688
   }
 }
