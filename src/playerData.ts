@@ -3,7 +3,7 @@ import path from "path";
 
 export interface PlayerData {
   username: string;
-  password: string; // In a real app, this should be hashed
+  password: string;
   experience: number;
   level: number;
   lastRoom?: string;
@@ -85,8 +85,10 @@ class PlayerDataManager {
     username: string,
     password: string
   ): Promise<PlayerData | null> {
+    console.log("MANAGER: Logging in player:", username, password);
     const playerData = this.players.get(username);
     if (!playerData || playerData.password !== password) {
+      console.log("MANAGER: Invalid credentials");
       return null;
     }
     console.log("MANAGER: Logged in player:", playerData);
@@ -116,3 +118,5 @@ class PlayerDataManager {
 }
 
 export const playerDataManager = PlayerDataManager.getInstance();
+
+//Persists player data including username and passwords

@@ -41,14 +41,10 @@ export class map extends Room<MyRoomState> {
     this.setState(new MyRoomState());
     this.autoDispose = false;
     const mapData = JSON.parse(fs.readFileSync(options.path, "utf8"));
-
     this.state.mapWidth = mapData.width * mapData.tilewidth;
     this.state.mapHeight = mapData.height * mapData.tileheight;
-
     const colliders = TiledMapParser.parseColliders(mapData);
-
     this.state.obstacles = new Array<Obstacle>();
-    // Initialize obstacles
     colliders.forEach((collider) => {
       const obstacle = new Obstacle(
         uuidv4(),
@@ -61,9 +57,6 @@ export class map extends Room<MyRoomState> {
       this.state.obstacles.push(obstacle);
     });
 
-    console.log("MAP: Obstacles", this.state.obstacles);
-
-    // Initialize portals if provided
     if (options.portals) {
       options.portals.forEach((portal) => {
         this.state.portals.push(
@@ -84,11 +77,12 @@ export class map extends Room<MyRoomState> {
     console.log("MAP: Portals", this.state.portals);
 
     this.onMessage(0, (_, input) => {
+      console.log("MAP: Input", input);
+      //routes input to correct user, based on username
       const player = this.state.spawnedPlayers.find(
         (player) => player.username === input.username
       );
       player.inputQueue.push(input);
-      console.log("MAP: Player input", input);
     });
 
     let elapsedTime = 0;
@@ -101,58 +95,69 @@ export class map extends Room<MyRoomState> {
       }
     });
   }
-
+  /*
+  If onAuth() returns a truthy value, onJoin() is going to be called with the returned value as the third argument.
+  If onAuth() returns a falsy value, the client is immediatelly rejected, causing the matchmaking function call from the client-side to fail.
+  */
   async onAuth(
     client: Client,
     options: { username: string; password: string }
   ) {
+    console.log("MAP: Auth attempt for user:", options.username);
+
+    if (!options.username || !options.password) {
+      throw new Error("Username and password are required");
+    }
+
     const playerData = await playerDataManager.loginPlayer(
       options.username,
       options.password
     );
+
     if (!playerData) {
       throw new Error("Invalid credentials");
     }
-    return { username: options.username };
-    console.log("MAP: Auth successful", playerData);
+
+    console.log("MAP: Auth successful for user:", options.username);
+    return playerData; // Return the full player data to be used in onJoin
   }
 
-  async onJoin(client: Client, options: any, auth: { username: string }) {
-    const playerData = await playerDataManager.getPlayerData(auth.username);
-    if (!playerData) {
-      throw new Error("Player data not found");
+  async onJoin(client: Client, options: any, auth: PlayerData) {
+    if (!auth || !auth.username) {
+      throw new Error("Authentication data not found");
     }
 
-    // Create a new spawned player with the persisted data
+    console.log("ONJOIN AUTH", auth);
+
+    // Create a new spawned player with the auth data
     const spawnedPlayer = new SpawnedPlayer(
-      client.sessionId,
+      uuidv4(),
       auth.username,
-      playerData.lastX || 100, // Default spawn position
-      playerData.lastY || 100,
+      auth.lastX || 100, // Default spawn position
+      auth.lastY || 100,
       0, // velocityX
       0, // velocityY
-      playerData.experience,
-      playerData.level,
+      auth.experience,
+      auth.level,
       32, // height
       32, // width
-      Date.now(),
       false, // isAttacking
       true, // isGrounded
       []
     );
 
     this.state.spawnedPlayers.push(spawnedPlayer);
-    console.log(
-      "MAP: Spawned player",
-      spawnedPlayer,
-      "NEW STATE",
-      this.state.spawnedPlayers
-    );
+    console.log("MAP: Spawned player", spawnedPlayer.username, "at position:", {
+      x: spawnedPlayer.x,
+      y: spawnedPlayer.y,
+    });
   }
 
   onLeave(client: Client) {
+    console.log("MAP: On leave", client.auth);
     const player = this.state.spawnedPlayers.find(
-      (p) => p.id === client.sessionId
+      //wierd hack
+      (p) => p.username === client.auth.username
     );
     if (player) {
       // Save the player's last position and room before they leave
@@ -166,7 +171,7 @@ export class map extends Room<MyRoomState> {
 
       // Remove the player from the room
       const index = this.state.spawnedPlayers.findIndex(
-        (p) => p.id === client.sessionId
+        (p) => p.username === client.auth.username
       );
       if (index !== -1) {
         this.state.spawnedPlayers.splice(index, 1);

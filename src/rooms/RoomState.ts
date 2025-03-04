@@ -1,10 +1,9 @@
-import { Schema, type, MapSchema } from "@colyseus/schema";
+import { Schema, type } from "@colyseus/schema";
 import {
   MonsterInterface,
   SpawnedMonsterInterface,
   LootInterface,
   SpawnedLootInterface,
-  PlayerInterface,
   SpawnedPlayerInterface,
   InputData,
   ObstacleInterface,
@@ -92,7 +91,6 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("number") level: number = 1;
   @type("number") height: number = 32;
   @type("number") width: number = 32;
-  @type("number") tick: number;
   @type("boolean") isAttacking: boolean;
   @type("boolean") isGrounded: boolean;
   inputQueue: InputData[];
@@ -108,7 +106,6 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     level: number,
     height: number,
     width: number,
-    tick: number,
     isAttacking: boolean,
     isGrounded: boolean,
     inputQueue: InputData[]
@@ -124,7 +121,6 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     this.level = level;
     this.height = height;
     this.width = width;
-    this.tick = tick;
     this.isAttacking = isAttacking;
     this.isGrounded = isGrounded;
     this.inputQueue = inputQueue;
@@ -161,8 +157,6 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
     this.name = monsterType.name;
     this.x = spawnX;
     this.y = spawnY;
-
-    // Copy properties from monsterType
     this.maxHealth = monsterType.maxHealth;
     this.currentHealth = monsterType.maxHealth;
     this.damage = monsterType.damage;

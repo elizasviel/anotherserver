@@ -36,17 +36,14 @@ router.post("/login", async (req, res) => {
   }
 
   res.json({
-    message: "Login successful",
     playerData: {
-      username: playerData.username,
-      experience: playerData.experience,
-      level: playerData.level,
-      lastRoom: playerData.lastRoom,
-      lastX: playerData.lastX,
-      lastY: playerData.lastY,
+      ...playerData,
     },
   });
   console.log("AUTH: Logged in player:", username, password, playerData);
 });
 
 export default router;
+
+//Authenticaation API. Takes in requests and either tells the player data manager to create a new player
+//Or to login and retrieve player data.

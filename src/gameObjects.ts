@@ -73,7 +73,6 @@ export interface SpawnedPlayerInterface extends PlayerInterface {
   velocityY: number;
   height: number;
   width: number;
-  tick: number;
   isAttacking: boolean;
   isGrounded: boolean;
   inputQueue: InputData[];

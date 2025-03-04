@@ -102,4 +102,4 @@ export default config({
   },
 });
 
-//This file
+//Defines 3 kinds of rooms and creates one of each kind
