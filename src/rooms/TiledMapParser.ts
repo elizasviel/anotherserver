@@ -29,8 +29,17 @@ export interface TiledMap {
 
 export class TiledMapParser {
   static getTileProperties(map: TiledMap, tileId: number): TileProperty[] {
-    // Adjust tileId to account for firstgid
-    const tileset = map.tilesets[0]; // Assuming single tileset for simplicity
+    // Find the correct tileset by checking firstgid ranges
+    const tileset = map.tilesets.find((ts, index) => {
+      const nextTileset = map.tilesets[index + 1];
+      return (
+        tileId >= ts.firstgid && (!nextTileset || tileId < nextTileset.firstgid)
+      );
+    });
+
+    if (!tileset) return [];
+
+    // Adjust tileId based on the correct tileset's firstgid
     const adjustedTileId = tileId - tileset.firstgid;
 
     // Find tile properties

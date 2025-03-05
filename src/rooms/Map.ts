@@ -7,7 +7,7 @@ import {
 } from "./RoomState";
 import { Room, Client } from "colyseus";
 import { playerDataManager, PlayerData } from "../playerData";
-import { SpawnedPlayer } from "./RoomState";
+import { SpawnedPlayer, HitObjectSchema } from "./RoomState";
 import { TiledMapParser } from "./TiledMapParser";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
@@ -113,8 +113,6 @@ export class map extends Room<MyRoomState> {
             currentCount < m.maxSpawned &&
             currentTime - lastSpawnTime >= m.spawnInterval
           ) {
-            console.log("MAP: Spawning monster", m.monsterType.name);
-
             // Update last spawn time
             this.lastSpawnTimes.set(m.monsterType.name, currentTime);
 
@@ -191,8 +189,10 @@ export class map extends Room<MyRoomState> {
       auth.level,
       32, // height
       32, // width
+      true, // canAttack
+      true, // canLoot
+      true, // canJump
       false, // isAttacking
-      true, // isGrounded
       []
     );
 
@@ -248,13 +248,29 @@ export class map extends Room<MyRoomState> {
 
       //drain input queue
       while ((input = player.inputQueue.shift())) {
+        // Track the last processed input tick
+        if (input.tick > player.lastProcessedTick) {
+          player.lastProcessedTick = input.tick;
+        }
+
         const prevX = player.x;
         const prevY = player.y;
 
-        if (input.attack) {
+        if (input.attack && player.canAttack) {
           player.isAttacking = true;
-        } else {
-          player.isAttacking = false;
+          player.canAttack = false;
+          setTimeout(() => {
+            player.canAttack = true;
+            player.isAttacking = false;
+          }, 500);
+        }
+
+        if (input.loot && player.canLoot) {
+          player.canLoot = false;
+          this.handleLootCollection(player);
+          setTimeout(() => {
+            player.canLoot = true;
+          }, 250);
         }
 
         // Reset velocityX each tick
@@ -283,16 +299,18 @@ export class map extends Room<MyRoomState> {
             }
           }
 
-          if (input.jump && player.isGrounded) {
+          if (input.jump && player.canJump) {
             player.velocityY = jumpVelocity;
-            player.isGrounded = false;
+            player.canJump = false; // Set canJump to false when jumping
           }
         }
 
         player.velocityY += gravity;
         player.y += player.velocityY;
 
-        player.isGrounded = false;
+        // Reset canJump to false before checking collisions
+        player.canJump = false;
+
         for (const obstacle of this.state.obstacles) {
           if (this.checkCollision(player, obstacle)) {
             const playerBottom = prevY + 16; //Y is the center of the player, add 16 to get the bottom edge.
@@ -301,7 +319,7 @@ export class map extends Room<MyRoomState> {
             if (playerBottom <= obstacleTop) {
               player.y = obstacleTop - 16;
               player.velocityY = 0;
-              player.isGrounded = true;
+              player.canJump = true; // Set canJump to true when on ground
             } else {
               player.y = prevY;
               player.velocityY = 0;
@@ -317,51 +335,19 @@ export class map extends Room<MyRoomState> {
             const dx = Math.abs(player.x - monster.x);
             const dy = Math.abs(player.y - monster.y);
 
-            if (dx < attackRange && dy < attackRange && !monster.isHit) {
-              // Deal damage and mark monster as hit for this attack
-              monster.currentHealth -= 100;
-              monster.isHit = true;
-
-              // Reset hit state after the attack animation
-              setTimeout(() => {
-                monster.isHit = false;
-              }, 500); // Adjust timing based on your attack animation duration
-
-              // Remove monster if health depleted
-              if (monster.currentHealth <= 0) {
-                const index = this.state.spawnedMonsters.indexOf(monster);
-                if (index !== -1) {
-                  // Spawn loot before removing the monster
-                  monster.potentialLoot.forEach((loot) => {
-                    // Add random velocity for a "pop" effect
-                    const randomVelocityX = (Math.random() - 0.5) * 4; // Random between -2 and 2
-                    const randomVelocityY = -Math.random() * 3 - 2; // Random between -2 and -5 (upward)
-
-                    const spawnedLoot = new SpawnedLoot(
-                      uuidv4(),
-                      loot.name,
-                      monster.x,
-                      monster.y,
-                      randomVelocityX,
-                      randomVelocityY,
-                      loot.width,
-                      loot.height,
-                      Date.now()
-                    );
-                    this.state.spawnedLoot.push(spawnedLoot);
-                    console.log("LOOT: Added loot", spawnedLoot);
-                  });
-                  this.state.spawnedMonsters.splice(index, 1);
-                  console.log("DEFEATED MONSTER");
-                }
-              }
+            if (
+              dx < attackRange &&
+              dy < attackRange &&
+              !monster.hitQueue.some(
+                (hit) =>
+                  hit.username === player.username && hit.attack === "attack"
+              )
+            ) {
+              monster.hitQueue.push(
+                new HitObjectSchema(player.username, "attack", 50)
+              );
             }
           });
-        }
-
-        // Handle loot collection from input payload
-        if (input.loot) {
-          this.handleLootCollection(player);
         }
       }
     });
@@ -370,6 +356,46 @@ export class map extends Room<MyRoomState> {
     const monsterSpeed = 1;
 
     this.state.spawnedMonsters.forEach((monster) => {
+      const hitObject = monster.hitQueue.shift();
+      if (hitObject) {
+        console.log("MONSTER HEALTH", monster.currentHealth);
+        // Ensure damage is a valid number before subtracting
+        if (typeof hitObject.damage === "number" && !isNaN(hitObject.damage)) {
+          monster.currentHealth -= hitObject.damage;
+          console.log("MONSTER HEALTH", monster.currentHealth);
+        } else {
+          console.error("Invalid damage value:", hitObject.damage);
+        }
+      }
+      // Remove monster if health depleted
+      if (monster.currentHealth <= 0) {
+        const index = this.state.spawnedMonsters.indexOf(monster);
+        if (index !== -1) {
+          // Spawn loot before removing the monster
+          monster.potentialLoot.forEach((loot) => {
+            // Add random velocity for a "pop" effect
+            const randomVelocityX = (Math.random() - 0.5) * 4; // Random between -2 and 2
+            const randomVelocityY = -Math.random() * 3 - 2; // Random between -2 and -5 (upward)
+
+            const spawnedLoot = new SpawnedLoot(
+              uuidv4(),
+              loot.name,
+              monster.x,
+              monster.y,
+              randomVelocityX,
+              randomVelocityY,
+              loot.width,
+              loot.height,
+              Date.now()
+            );
+            this.state.spawnedLoot.push(spawnedLoot);
+            console.log("LOOT: Added loot", spawnedLoot);
+          });
+          this.state.spawnedMonsters.splice(index, 1);
+          console.log("DEFEATED MONSTER");
+        }
+        return;
+      }
       // Store previous position
       const prevX = monster.x;
       const prevY = monster.y;
@@ -393,7 +419,7 @@ export class map extends Room<MyRoomState> {
       monster.y += monster.velocityY;
 
       // Check vertical collisions
-      monster.isGrounded = false;
+      monster.canJump = false;
       for (const obstacle of this.state.obstacles) {
         if (this.checkCollision(monster, obstacle)) {
           const monsterBottom = prevY + 16;
@@ -403,7 +429,7 @@ export class map extends Room<MyRoomState> {
             // Landing on top of platform
             monster.y = obstacleTop - 16;
             monster.velocityY = 0;
-            monster.isGrounded = true;
+            monster.canJump = true;
           } else {
             // Other vertical collisions
             monster.y = prevY;

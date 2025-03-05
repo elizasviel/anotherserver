@@ -7,6 +7,7 @@ import {
   SpawnedPlayerInterface,
   InputData,
   ObstacleInterface,
+  HitObject,
 } from "../gameObjects";
 
 export class Obstacle extends Schema implements ObstacleInterface {
@@ -98,8 +99,11 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("number") level: number = 1;
   @type("number") height: number = 32;
   @type("number") width: number = 32;
-  @type("boolean") isAttacking: boolean;
-  @type("boolean") isGrounded: boolean;
+  @type("boolean") canAttack: boolean = true;
+  @type("boolean") canLoot: boolean = true;
+  @type("boolean") canJump: boolean = true;
+  @type("boolean") isAttacking: boolean = false;
+  @type("number") lastProcessedTick: number = 0;
   inputQueue: InputData[];
 
   constructor(
@@ -113,8 +117,10 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     level: number,
     height: number,
     width: number,
+    canAttack: boolean,
+    canLoot: boolean,
+    canJump: boolean,
     isAttacking: boolean,
-    isGrounded: boolean,
     inputQueue: InputData[]
   ) {
     super();
@@ -128,9 +134,25 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     this.level = level;
     this.height = height;
     this.width = width;
+    this.canAttack = canAttack;
+    this.canLoot = canLoot;
+    this.canJump = canJump;
     this.isAttacking = isAttacking;
-    this.isGrounded = isGrounded;
     this.inputQueue = inputQueue;
+    this.lastProcessedTick = 0;
+  }
+}
+
+export class HitObjectSchema extends Schema implements HitObject {
+  @type("string") username: string;
+  @type("string") attack: string;
+  @type("number") damage: number;
+
+  constructor(username: string, attack: string, damage: number) {
+    super();
+    this.username = username;
+    this.attack = attack;
+    this.damage = damage;
   }
 }
 
@@ -149,9 +171,8 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
   @type("number") velocityX: number;
   @type("number") velocityY: number;
   @type("number") currentHealth: number;
-  @type("boolean") isGrounded: boolean;
-  @type("boolean") isHit: boolean;
-
+  @type("boolean") canJump: boolean;
+  @type([HitObjectSchema]) hitQueue: HitObjectSchema[] = [];
   constructor(
     id: string,
     monsterType: MonsterInterface,
@@ -175,8 +196,8 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
     this.potentialLoot = monsterType.potentialLoot.map(
       (loot) => new Loot(loot.name, loot.width, loot.height)
     );
-    this.isGrounded = true;
-    this.isHit = false;
+    this.canJump = true;
+    this.hitQueue = [];
   }
 }
 

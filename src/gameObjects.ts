@@ -30,6 +30,12 @@ export interface MonsterInterface {
   potentialLoot: LootInterface[];
 }
 
+export interface HitObject {
+  username: string;
+  attack: string;
+  damage: number;
+}
+
 export interface SpawnedMonsterInterface extends MonsterInterface {
   id: string;
   x: number;
@@ -37,8 +43,8 @@ export interface SpawnedMonsterInterface extends MonsterInterface {
   velocityX: number;
   velocityY: number;
   currentHealth: number;
-  isGrounded: boolean;
-  isHit: boolean;
+  canJump: boolean;
+  hitQueue: HitObject[];
 }
 
 export interface LootInterface {
@@ -66,14 +72,21 @@ export interface PlayerInterface {
 }
 
 export interface SpawnedPlayerInterface extends PlayerInterface {
+  id: string;
+  username: string;
   x: number;
   y: number;
   velocityX: number;
   velocityY: number;
+  experience: number;
+  level: number;
   height: number;
   width: number;
+  canAttack: boolean;
+  canLoot: boolean;
+  canJump: boolean;
   isAttacking: boolean;
-  isGrounded: boolean;
+  lastProcessedTick: number;
   inputQueue: InputData[];
 }
 
