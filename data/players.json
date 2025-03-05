@@ -1,20 +1,20 @@
 {
-  "123": {
-    "username": "123",
-    "password": "123",
-    "experience": 155,
-    "level": 2,
-    "lastRoom": "village",
-    "lastX": 556,
-    "lastY": 688
-  },
   "1234": {
     "username": "1234",
     "password": "1234",
-    "experience": 70,
+    "experience": 0,
     "level": 1,
-    "lastRoom": "village",
-    "lastX": 580,
-    "lastY": 688
+    "lastRoom": "field",
+    "lastX": 410,
+    "lastY": 496
+  },
+  "asdf": {
+    "username": "asdf",
+    "password": "asdf",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 970,
+    "lastY": 496
   }
 }
