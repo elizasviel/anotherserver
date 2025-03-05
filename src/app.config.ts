@@ -20,7 +20,7 @@ export default config({
     // Define different map rooms
     gameServer.define("village", map);
     gameServer.define("field", map);
-
+    gameServer.define("field1", map);
     (async () => {
       await matchMaker.createRoom("village", {
         path: "./src/Maps/VillageMap.tmj",
@@ -41,6 +41,16 @@ export default config({
             targetRoom: "field",
             targetX: 1550,
             targetY: 420,
+          },
+          {
+            id: "field1-portal",
+            x: 1550,
+            y: 620,
+            width: 64,
+            height: 64,
+            targetRoom: "field1",
+            targetX: 50,
+            targetY: 320,
           },
         ],
       });
@@ -64,6 +74,49 @@ export default config({
             targetRoom: "village",
             targetX: 50,
             targetY: 650,
+          },
+          {
+            id: "field1-portal",
+            x: 50,
+            y: 480,
+            width: 64,
+            height: 64,
+            targetRoom: "field1",
+            targetX: 1550,
+            targetY: 420,
+          },
+        ],
+      });
+
+      await matchMaker.createRoom("field1", {
+        path: "./src/Maps/FieldMap1.tmj",
+        monsters: [
+          {
+            monsterType: boar,
+            spawnInterval: 2000,
+            maxSpawned: 10,
+          },
+        ],
+        portals: [
+          {
+            id: "field-portal1",
+            x: 1550,
+            y: 450,
+            width: 64,
+            height: 64,
+            targetRoom: "field",
+            targetX: 50,
+            targetY: 460,
+          },
+          {
+            id: "village-portal1",
+            x: 50,
+            y: 320,
+            width: 64,
+            height: 64,
+            targetRoom: "village",
+            targetX: 1550,
+            targetY: 620,
           },
         ],
       });
