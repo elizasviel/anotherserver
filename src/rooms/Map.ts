@@ -87,21 +87,6 @@ export class map extends Room<MyRoomState> {
       player.inputQueue.push(input);
     });
 
-    // Add this message handler for loot collection
-    this.onMessage("collectLoot", (client) => {
-      const username = client.auth.username;
-      const player = this.state.spawnedPlayers.find(
-        (p) => p.username === username
-      );
-
-      if (!player) {
-        console.warn(`MAP: Player not found for loot collection: ${username}`);
-        return;
-      }
-
-      this.handleLootCollection(player);
-    });
-
     // Initialize spawn times for each monster type
     options.monsters.forEach((m) => {
       this.lastSpawnTimes.set(m.monsterType.name, 0);
@@ -374,7 +359,7 @@ export class map extends Room<MyRoomState> {
           });
         }
 
-        // Handle loot collection
+        // Handle loot collection from input payload
         if (input.loot) {
           this.handleLootCollection(player);
         }
@@ -539,47 +524,66 @@ export class map extends Room<MyRoomState> {
     );
   }
 
-  // Add this method to handle loot collection
+  // Update the handleLootCollection method to only collect the nearest item
   private handleLootCollection(player: SpawnedPlayer) {
     const collectionRange = 40; // Adjust based on desired pickup range
 
-    // Create a copy of the array to safely modify during iteration
-    const lootToCheck = [...this.state.spawnedLoot];
+    // Find all loot items in range
+    const lootInRange = this.state.spawnedLoot.filter((loot) => {
+      if (loot.isBeingCollected) return false;
 
-    lootToCheck.forEach((loot) => {
-      // Skip if already being collected
-      if (loot.isBeingCollected) return;
-
-      // Check if loot is in range
       const dx = Math.abs(player.x - loot.x);
       const dy = Math.abs(player.y - loot.y);
 
-      if (dx < collectionRange && dy < collectionRange) {
-        console.log(`MAP: Player ${player.username} collecting loot`);
-
-        // Mark as being collected
-        loot.isBeingCollected = true;
-        loot.collectedBy = player.username;
-
-        // Add experience to the player
-        if (loot.name.includes("Coin")) {
-          player.experience += 5; // Adjust experience value as needed
-
-          // Level up logic if needed
-          if (player.experience >= player.level * 100) {
-            player.level += 1;
-          }
-        }
-
-        // Remove the loot after a short delay (for collection animation)
-        setTimeout(() => {
-          const index = this.state.spawnedLoot.indexOf(loot);
-          if (index !== -1) {
-            this.state.spawnedLoot.splice(index, 1);
-          }
-        }, 300);
-      }
+      return dx < collectionRange && dy < collectionRange;
     });
+
+    // If no loot in range, return early
+    if (lootInRange.length === 0) return;
+
+    // Find the nearest loot item
+    let nearestLoot = lootInRange[0];
+    let nearestDistance = Math.sqrt(
+      Math.pow(player.x - nearestLoot.x, 2) +
+        Math.pow(player.y - nearestLoot.y, 2)
+    );
+
+    for (let i = 1; i < lootInRange.length; i++) {
+      const loot = lootInRange[i];
+      const distance = Math.sqrt(
+        Math.pow(player.x - loot.x, 2) + Math.pow(player.y - loot.y, 2)
+      );
+
+      if (distance < nearestDistance) {
+        nearestLoot = loot;
+        nearestDistance = distance;
+      }
+    }
+
+    // Collect only the nearest loot
+    console.log(`MAP: Player ${player.username} collecting nearest loot`);
+
+    // Mark as being collected
+    nearestLoot.isBeingCollected = true;
+    nearestLoot.collectedBy = player.username;
+
+    // Add experience to the player
+    if (nearestLoot.name.includes("Coin")) {
+      player.experience += 5; // Adjust experience value as needed
+
+      // Level up logic if needed
+      if (player.experience >= player.level * 100) {
+        player.level += 1;
+      }
+    }
+
+    // Remove the loot after a short delay (for collection animation)
+    setTimeout(() => {
+      const index = this.state.spawnedLoot.indexOf(nearestLoot);
+      if (index !== -1) {
+        this.state.spawnedLoot.splice(index, 1);
+      }
+    }, 300);
   }
 }
 
