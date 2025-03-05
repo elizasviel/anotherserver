@@ -21,7 +21,7 @@ interface MapOptions {
     maxSpawned: number;
     minSpawned: number;
   }[];
-  portals?: {
+  portals: {
     id: string;
     x: number;
     y: number;
@@ -57,27 +57,24 @@ export class map extends Room<MyRoomState> {
       this.state.obstacles.push(obstacle);
     });
 
-    if (options.portals) {
-      options.portals.forEach((portal) => {
-        this.state.portals.push(
-          new Portal(
-            portal.id,
-            portal.x,
-            portal.y,
-            portal.width,
-            portal.height,
-            portal.targetRoom,
-            portal.targetX,
-            portal.targetY
-          )
-        );
-      });
-    }
+    options.portals.forEach((portal) => {
+      this.state.portals.push(
+        new Portal(
+          portal.id,
+          portal.x,
+          portal.y,
+          portal.width,
+          portal.height,
+          portal.targetRoom,
+          portal.targetX,
+          portal.targetY
+        )
+      );
+    });
 
     console.log("MAP: Portals", this.state.portals);
 
     this.onMessage(0, (_, input) => {
-      console.log("MAP: Input", input);
       //routes input to correct user, based on username
       const player = this.state.spawnedPlayers.find(
         (player) => player.username === input.username

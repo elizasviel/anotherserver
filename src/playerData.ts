@@ -6,9 +6,9 @@ export interface PlayerData {
   password: string;
   experience: number;
   level: number;
-  lastRoom?: string;
-  lastX?: number;
-  lastY?: number;
+  lastRoom: string;
+  lastX: number;
+  lastY: number;
 }
 
 class PlayerDataManager {
@@ -73,6 +73,9 @@ class PlayerDataManager {
       password,
       experience: 0,
       level: 1,
+      lastRoom: "village",
+      lastX: 0,
+      lastY: 0,
     };
 
     this.players.set(username, playerData);
