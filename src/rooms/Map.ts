@@ -609,7 +609,7 @@ export class map extends Room<MyRoomState> {
       if (index !== -1) {
         this.state.spawnedLoot.splice(index, 1);
       }
-    }, 300);
+    }, 10);
   }
 }
 
