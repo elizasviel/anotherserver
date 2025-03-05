@@ -7,7 +7,6 @@ import {
   SpawnedPlayerInterface,
   InputData,
   ObstacleInterface,
-  HitObject,
 } from "../gameObjects";
 
 export class Obstacle extends Schema implements ObstacleInterface {
@@ -143,19 +142,6 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   }
 }
 
-export class HitObjectSchema extends Schema implements HitObject {
-  @type("string") username: string;
-  @type("string") attack: string;
-  @type("number") damage: number;
-
-  constructor(username: string, attack: string, damage: number) {
-    super();
-    this.username = username;
-    this.attack = attack;
-    this.damage = damage;
-  }
-}
-
 export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
   @type("string") name: string = "";
   @type("number") maxHealth: number;
@@ -172,7 +158,6 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
   @type("number") velocityY: number;
   @type("number") currentHealth: number;
   @type("boolean") canJump: boolean;
-  @type([HitObjectSchema]) hitQueue: HitObjectSchema[] = [];
   constructor(
     id: string,
     monsterType: MonsterInterface,
@@ -197,7 +182,6 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
       (loot) => new Loot(loot.name, loot.width, loot.height)
     );
     this.canJump = true;
-    this.hitQueue = [];
   }
 }
 

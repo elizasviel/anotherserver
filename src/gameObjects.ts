@@ -30,12 +30,6 @@ export interface MonsterInterface {
   potentialLoot: LootInterface[];
 }
 
-export interface HitObject {
-  username: string;
-  attack: string;
-  damage: number;
-}
-
 export interface SpawnedMonsterInterface extends MonsterInterface {
   id: string;
   x: number;
@@ -44,7 +38,6 @@ export interface SpawnedMonsterInterface extends MonsterInterface {
   velocityY: number;
   currentHealth: number;
   canJump: boolean;
-  hitQueue: HitObject[];
 }
 
 export interface LootInterface {

@@ -7,7 +7,7 @@ import {
 } from "./RoomState";
 import { Room, Client } from "colyseus";
 import { playerDataManager, PlayerData } from "../playerData";
-import { SpawnedPlayer, HitObjectSchema } from "./RoomState";
+import { SpawnedPlayer } from "./RoomState";
 import { TiledMapParser } from "./TiledMapParser";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
@@ -338,14 +338,9 @@ export class map extends Room<MyRoomState> {
             if (
               dx < attackRange &&
               dy < attackRange &&
-              !monster.hitQueue.some(
-                (hit) =>
-                  hit.username === player.username && hit.attack === "attack"
-              )
+              monster.currentHealth > 0
             ) {
-              monster.hitQueue.push(
-                new HitObjectSchema(player.username, "attack", 50)
-              );
+              monster.currentHealth -= 50;
             }
           });
         }
@@ -356,17 +351,6 @@ export class map extends Room<MyRoomState> {
     const monsterSpeed = 1;
 
     this.state.spawnedMonsters.forEach((monster) => {
-      const hitObject = monster.hitQueue.shift();
-      if (hitObject) {
-        console.log("MONSTER HEALTH", monster.currentHealth);
-        // Ensure damage is a valid number before subtracting
-        if (typeof hitObject.damage === "number" && !isNaN(hitObject.damage)) {
-          monster.currentHealth -= hitObject.damage;
-          console.log("MONSTER HEALTH", monster.currentHealth);
-        } else {
-          console.error("Invalid damage value:", hitObject.damage);
-        }
-      }
       // Remove monster if health depleted
       if (monster.currentHealth <= 0) {
         const index = this.state.spawnedMonsters.indexOf(monster);
