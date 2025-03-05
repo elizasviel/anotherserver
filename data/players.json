@@ -5,8 +5,8 @@
     "experience": 0,
     "level": 1,
     "lastRoom": "village",
-    "lastX": 100,
-    "lastY": 100
+    "lastX": 582,
+    "lastY": 688
   },
   "1234": {
     "username": "1234",
@@ -14,7 +14,7 @@
     "experience": 0,
     "level": 1,
     "lastRoom": "village",
-    "lastX": 190,
-    "lastY": 688
+    "lastX": 710,
+    "lastY": 624
   }
 }
