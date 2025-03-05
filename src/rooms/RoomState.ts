@@ -39,6 +39,13 @@ export class Loot extends Schema implements LootInterface {
   @type("string") name: string = "";
   @type("number") width: number = 32;
   @type("number") height: number = 32;
+
+  constructor(name: string, width: number, height: number) {
+    super();
+    this.name = name;
+    this.width = width;
+    this.height = height;
+  }
 }
 
 export class SpawnedLoot extends Schema implements SpawnedLootInterface {
@@ -131,12 +138,11 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
   @type("string") name: string = "";
   @type("number") maxHealth: number;
   @type("number") damage: number;
-  @type("number") speed: number;
   @type("number") height: number;
   @type("number") width: number;
   @type("number") detectionRange: number;
   @type("number") experience: number;
-  @type("number") potentialLoot: LootInterface[];
+  @type([Loot]) potentialLoot: Loot[] = [];
   @type("string") id: string = "";
   @type("number") x: number;
   @type("number") y: number;
@@ -157,14 +163,20 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
     this.name = monsterType.name;
     this.x = spawnX;
     this.y = spawnY;
+    this.velocityX = 1;
+    this.velocityY = 0;
     this.maxHealth = monsterType.maxHealth;
     this.currentHealth = monsterType.maxHealth;
     this.damage = monsterType.damage;
-    this.speed = monsterType.speed;
     this.height = monsterType.height;
     this.width = monsterType.width;
     this.detectionRange = monsterType.detectionRange;
     this.experience = monsterType.experience;
+    this.potentialLoot = monsterType.potentialLoot.map(
+      (loot) => new Loot(loot.name, loot.width, loot.height)
+    );
+    this.isGrounded = true;
+    this.isHit = false;
   }
 }
 
@@ -208,7 +220,7 @@ export class MyRoomState extends Schema {
   @type([SpawnedPlayer]) spawnedPlayers = new Array<SpawnedPlayer>();
   @type([Obstacle]) obstacles = new Array<Obstacle>();
   @type([SpawnedMonster]) spawnedMonsters = new Array<SpawnedMonster>();
-  @type([SpawnedLoot]) loot = new Array<SpawnedLoot>();
+  @type([SpawnedLoot]) spawnedLoot = new Array<SpawnedLoot>();
   @type([Portal]) portals = new Array<Portal>();
 }
 

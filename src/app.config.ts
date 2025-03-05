@@ -2,11 +2,14 @@ import config from "@colyseus/tools";
 import { Server } from "colyseus";
 import { matchMaker } from "@colyseus/core";
 import { map } from "./rooms/Map";
+import { MONSTER_TYPES } from "./gameObjects";
 import express from "express";
 import authRouter from "./auth";
 import cors from "cors";
 
 let gameServerRef: Server;
+
+const { slime, goblin, skeleton, boar } = MONSTER_TYPES;
 
 export default config({
   options: {
@@ -21,6 +24,13 @@ export default config({
     (async () => {
       await matchMaker.createRoom("village", {
         path: "./src/Maps/VillageMap.tmj",
+        monsters: [
+          {
+            monsterType: boar,
+            spawnInterval: 2000,
+            maxSpawned: 10,
+          },
+        ],
         portals: [
           {
             id: "field-portal",
@@ -37,6 +47,13 @@ export default config({
 
       await matchMaker.createRoom("field", {
         path: "./src/Maps/FieldMap.tmj",
+        monsters: [
+          {
+            monsterType: boar,
+            spawnInterval: 2000,
+            maxSpawned: 10,
+          },
+        ],
         portals: [
           {
             id: "village-portal",

@@ -23,7 +23,6 @@ export interface MonsterInterface {
   name: string;
   maxHealth: number;
   damage: number;
-  speed: number;
   height: number;
   width: number;
   detectionRange: number;
@@ -89,7 +88,6 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
     name: "Slime",
     maxHealth: 50,
     damage: 5,
-    speed: 0.5,
     height: 24,
     width: 24,
     detectionRange: 100,
@@ -100,7 +98,6 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
     name: "Goblin",
     maxHealth: 80,
     damage: 10,
-    speed: 1.2,
     height: 32,
     width: 32,
     detectionRange: 150,
@@ -111,7 +108,6 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
     name: "Skeleton",
     maxHealth: 120,
     damage: 15,
-    speed: 0.8,
     height: 40,
     width: 40,
     detectionRange: 200,
@@ -122,7 +118,6 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
     name: "Boar",
     maxHealth: 150,
     damage: 20,
-    speed: 1.5,
     height: 50,
     width: 50,
     detectionRange: 250,
