@@ -87,6 +87,19 @@ export class map extends Room<MyRoomState> {
       player.inputQueue.push(input);
     });
 
+    // Handle chat messages
+    this.onMessage("chat", (client, message) => {
+      try {
+        // Broadcast the message to all clients
+        this.broadcast("chat", {
+          username: client.auth.username,
+          text: message.text,
+        });
+      } catch (error) {
+        console.error("MAP: Error broadcasting chat message:", error);
+      }
+    });
+
     // Initialize spawn times for each monster type
     options.monsters.forEach((m) => {
       this.lastSpawnTimes.set(m.monsterType.name, 0);
