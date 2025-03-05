@@ -218,6 +218,19 @@ export class map extends Room<MyRoomState> {
         const prevX = player.x;
         const prevY = player.y;
 
+        if (input.attack) {
+          player.isAttacking = true;
+        } else {
+          player.isAttacking = false;
+        }
+
+        console.log(
+          "MAP: Player",
+          player.username,
+          "is attacking:",
+          input.attack
+        );
+
         // Reset velocityX each tick
         player.velocityX = 0;
 
@@ -329,3 +342,5 @@ export class map extends Room<MyRoomState> {
     );
   }
 }
+
+//in reality, an attack input is not the same thing as the player attacking.
