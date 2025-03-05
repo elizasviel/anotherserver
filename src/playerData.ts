@@ -73,7 +73,7 @@ class PlayerDataManager {
       password,
       experience: 0,
       level: 1,
-      lastRoom: "village",
+      lastRoom: "field",
       lastX: 0,
       lastY: 0,
     };

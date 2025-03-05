@@ -5,16 +5,16 @@
     "experience": 0,
     "level": 1,
     "lastRoom": "village",
-    "lastX": 570,
-    "lastY": 688
+    "lastX": 834,
+    "lastY": 624
   },
   "1234": {
     "username": "1234",
     "password": "1234",
     "experience": 0,
     "level": 1,
-    "lastRoom": "village",
-    "lastX": 760,
-    "lastY": 624
+    "lastRoom": "field",
+    "lastX": 144,
+    "lastY": 720
   }
 }

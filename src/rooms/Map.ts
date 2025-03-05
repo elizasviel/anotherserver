@@ -132,12 +132,25 @@ export class map extends Room<MyRoomState> {
 
     console.log("ONJOIN AUTH", auth);
 
+    // Check if this is a portal transition by looking for targetX and targetY in options
+    let spawnX = auth.lastX || 100;
+    let spawnY = auth.lastY || 100;
+
+    // If options contains portal target coordinates, use those instead
+    if (options.targetX !== undefined && options.targetY !== undefined) {
+      spawnX = options.targetX;
+      spawnY = options.targetY;
+      console.log(
+        `MAP: Portal transition detected, spawning at ${spawnX}, ${spawnY}`
+      );
+    }
+
     // Create a new spawned player with the auth data
     const spawnedPlayer = new SpawnedPlayer(
       uuidv4(),
       auth.username,
-      auth.lastX || 100, // Default spawn position
-      auth.lastY || 100,
+      spawnX, // Use the determined spawn position
+      spawnY,
       0, // velocityX
       0, // velocityY
       auth.experience,
