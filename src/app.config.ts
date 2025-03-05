@@ -28,7 +28,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 2000,
-            maxSpawned: 10,
+            maxSpawned: 5,
           },
         ],
         portals: [
@@ -61,7 +61,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 2000,
-            maxSpawned: 10,
+            maxSpawned: 5,
           },
         ],
         portals: [
@@ -94,7 +94,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 2000,
-            maxSpawned: 10,
+            maxSpawned: 5,
           },
         ],
         portals: [

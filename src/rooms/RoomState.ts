@@ -158,6 +158,10 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
   @type("number") velocityY: number;
   @type("number") currentHealth: number;
   @type("boolean") canJump: boolean;
+  @type("string") behaviorState: string;
+  @type("number") behaviorTimer: number;
+  @type("number") behaviorDuration: number;
+
   constructor(
     id: string,
     monsterType: MonsterInterface,
@@ -182,6 +186,9 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
       (loot) => new Loot(loot.name, loot.width, loot.height)
     );
     this.canJump = true;
+    this.behaviorState = "idle";
+    this.behaviorTimer = 0;
+    this.behaviorDuration = Math.random() * 3000 + 1000;
   }
 }
 
