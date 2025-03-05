@@ -30,7 +30,7 @@ export default config({
             height: 64,
             targetRoom: "field",
             targetX: 150,
-            targetY: 300,
+            targetY: 500,
           },
         ],
       });
@@ -46,7 +46,7 @@ export default config({
             height: 64,
             targetRoom: "village",
             targetX: 800,
-            targetY: 300,
+            targetY: 500,
           },
         ],
       });

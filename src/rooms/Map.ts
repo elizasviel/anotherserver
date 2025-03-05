@@ -101,6 +101,7 @@ export class map extends Room<MyRoomState> {
   /*
   If onAuth() returns a truthy value, onJoin() is going to be called with the returned value as the third argument.
   If onAuth() returns a falsy value, the client is immediatelly rejected, causing the matchmaking function call from the client-side to fail.
+  onAuth is called when the client connects to the server, i.e. when the client calls this.client.join
   */
   async onAuth(
     client: Client,
@@ -172,7 +173,6 @@ export class map extends Room<MyRoomState> {
   onLeave(client: Client) {
     console.log("MAP: On leave", client.auth);
     const player = this.state.spawnedPlayers.find(
-      //wierd hack
       (p) => p.username === client.auth.username
     );
     if (player) {
@@ -202,7 +202,7 @@ export class map extends Room<MyRoomState> {
   }
 
   onDispose() {
-    // Clean up any room-specific resources
+    // For when the server has to shut down or restart
   }
 
   fixedTick(timeStep: number) {
@@ -213,6 +213,7 @@ export class map extends Room<MyRoomState> {
     this.state.spawnedPlayers.forEach((player) => {
       let input: InputData;
 
+      //drain input queue
       while ((input = player.inputQueue.shift())) {
         const prevX = player.x;
         const prevY = player.y;
@@ -255,8 +256,8 @@ export class map extends Room<MyRoomState> {
         player.isGrounded = false;
         for (const obstacle of this.state.obstacles) {
           if (this.checkCollision(player, obstacle)) {
-            const playerBottom = prevY + 16;
-            const obstacleTop = obstacle.y - obstacle.height / 2;
+            const playerBottom = prevY + 16; //Y is the center of the player, add 16 to get the bottom edge.
+            const obstacleTop = obstacle.y - obstacle.height / 2; // Y coordinate is the center of the obstacle, subtract to get the top edge.
 
             if (playerBottom <= obstacleTop) {
               player.y = obstacleTop - 16;
