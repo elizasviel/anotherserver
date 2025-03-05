@@ -11,11 +11,11 @@
   "123": {
     "username": "123",
     "password": "123",
-    "experience": 550,
-    "level": 6,
-    "lastRoom": "village",
-    "lastX": 84,
-    "lastY": 656
+    "experience": 670,
+    "level": 7,
+    "lastRoom": "field",
+    "lastX": 888,
+    "lastY": 624
   },
   "q": {
     "username": "q",
