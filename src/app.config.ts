@@ -72,7 +72,7 @@ export default config({
             width: 64,
             height: 64,
             targetRoom: "village",
-            targetX: 50,
+            targetX: 80,
             targetY: 650,
           },
           {
