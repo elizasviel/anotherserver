@@ -62,6 +62,8 @@ export interface PlayerInterface {
   username: string;
   experience: number;
   level: number;
+  maxHealth: number;
+  currentHealth: number;
 }
 
 export interface SpawnedPlayerInterface extends PlayerInterface {
@@ -82,6 +84,8 @@ export interface SpawnedPlayerInterface extends PlayerInterface {
   lastProcessedTick: number;
   currentAttackId: string;
   inputQueue: InputData[];
+  isInvulnerable: boolean;
+  lastDamageTime: number;
 }
 
 export const LOOT_TYPES: Record<string, LootInterface> = {

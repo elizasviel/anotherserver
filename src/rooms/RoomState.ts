@@ -104,6 +104,10 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("boolean") isAttacking: boolean = false;
   @type("number") lastProcessedTick: number = 0;
   @type("string") currentAttackId: string = null;
+  @type("number") maxHealth: number = 100;
+  @type("number") currentHealth: number = 100;
+  @type("boolean") isInvulnerable: boolean = false;
+  @type("number") lastDamageTime: number = 0;
   inputQueue: InputData[];
 
   constructor(
@@ -140,6 +144,10 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     this.isAttacking = isAttacking;
     this.inputQueue = inputQueue;
     this.lastProcessedTick = 0;
+    this.maxHealth = 100;
+    this.currentHealth = 100;
+    this.isInvulnerable = false;
+    this.lastDamageTime = 0;
   }
 }
 

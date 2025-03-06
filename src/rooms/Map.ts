@@ -260,6 +260,9 @@ export class map extends Room<MyRoomState> {
     const gravity = 0.5;
     const jumpVelocity = -12;
 
+    // Check for player-monster collisions and apply damage
+    this.handlePlayerMonsterCollisions();
+
     this.state.spawnedPlayers.forEach((player) => {
       let input: InputData;
 
@@ -578,11 +581,24 @@ export class map extends Room<MyRoomState> {
       | SpawnedMonster
       | SpawnedLoot
       | { x: number; y: number },
-    obstacle: Obstacle
+    obstacle: Obstacle | SpawnedMonster
   ): boolean {
     const entitySize = entity instanceof SpawnedLoot ? 8 : 16; // smaller size for coins
-    const obstacleHalfWidth = obstacle.width / 2;
-    const obstacleHalfHeight = obstacle.height / 2;
+
+    // Handle different obstacle types
+    let obstacleHalfWidth: number;
+    let obstacleHalfHeight: number;
+    let isOneWayPlatform = false;
+
+    if ("isOneWayPlatform" in obstacle) {
+      obstacleHalfWidth = obstacle.width / 2;
+      obstacleHalfHeight = obstacle.height / 2;
+      isOneWayPlatform = obstacle.isOneWayPlatform;
+    } else {
+      // It's a SpawnedMonster
+      obstacleHalfWidth = obstacle.width / 2;
+      obstacleHalfHeight = obstacle.height / 2;
+    }
 
     const obstacleLeft = obstacle.x - obstacleHalfWidth;
     const obstacleRight = obstacle.x + obstacleHalfWidth;
@@ -595,7 +611,7 @@ export class map extends Room<MyRoomState> {
     const entityBottom = entity.y + entitySize;
 
     // For one-way platforms, only check collision when entity is above the platform
-    if (obstacle.isOneWayPlatform) {
+    if (isOneWayPlatform) {
       // Only collide if:
       // 1. Entity is moving downward (has velocityY property and it's positive)
       // 2. Entity's bottom was above the platform's top in the previous frame
@@ -688,6 +704,64 @@ export class map extends Room<MyRoomState> {
         this.state.spawnedLoot.splice(index, 1);
       }
     }, 10);
+  }
+
+  private handlePlayerMonsterCollisions() {
+    const touchDamage = 10;
+    const knockbackForce = 5;
+    const invulnerabilityDuration = 1000; // 1 second of invulnerability
+    const now = Date.now();
+
+    this.state.spawnedPlayers.forEach((player) => {
+      // Skip if player is invulnerable
+      if (player.isInvulnerable) {
+        // Check if invulnerability has expired
+        if (now - player.lastDamageTime > invulnerabilityDuration) {
+          player.isInvulnerable = false;
+        }
+        return;
+      }
+
+      // Skip if player is attacking (attacking players don't take damage)
+      if (player.isAttacking) {
+        return;
+      }
+
+      this.state.spawnedMonsters.forEach((monster) => {
+        // Skip dead monsters
+        if (monster.currentHealth <= 0) {
+          return;
+        }
+
+        // Check collision between player and monster
+        if (this.checkCollision(player, monster)) {
+          // Apply damage to player
+          player.currentHealth -= touchDamage;
+
+          // Set invulnerability
+          player.isInvulnerable = true;
+          player.lastDamageTime = now;
+
+          // Apply knockback based on relative positions
+          const knockbackDirectionX = player.x < monster.x ? -1 : 1;
+          player.velocityX = knockbackForce * knockbackDirectionX;
+          player.velocityY = -knockbackForce / 2; // Small upward knockback
+
+          // Move player immediately to avoid getting stuck in monster
+          player.x += player.velocityX;
+          player.y += player.velocityY;
+
+          // Check if player is dead (health <= 0)
+          if (player.currentHealth <= 0) {
+            // Reset player health and position (respawn)
+            player.currentHealth = player.maxHealth;
+            // Find a safe spawn point - for now just use initial position
+            player.x = 100;
+            player.y = 100;
+          }
+        }
+      });
+    });
   }
 }
 
