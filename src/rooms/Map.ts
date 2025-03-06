@@ -36,6 +36,10 @@ interface MapOptions {
 export class map extends Room<MyRoomState> {
   private readonly fixedTimeStep = 1000 / 60;
   private lastSpawnTimes: Map<string, number> = new Map();
+  // Track which monsters have been hit by each attack instance
+  private playerAttackHits: Map<string, Set<string>> = new Map();
+  // Counter to generate unique attack IDs
+  private attackCounter: number = 0;
 
   onCreate(options: MapOptions) {
     console.log("MAP: Creating map", options);
@@ -272,9 +276,20 @@ export class map extends Room<MyRoomState> {
         if (input.attack && player.canAttack) {
           player.isAttacking = true;
           player.canAttack = false;
+
+          // Generate a unique attack ID for this attack instance
+          const attackId = `${player.id}_${this.attackCounter++}`;
+          // Store the attack ID on the player for reference in the damage calculation
+          player.currentAttackId = attackId;
+          // Initialize a new set for tracking monsters hit by this specific attack
+          this.playerAttackHits.set(attackId, new Set<string>());
+
           setTimeout(() => {
             player.canAttack = true;
             player.isAttacking = false;
+            // Clear the hit tracking for this specific attack when it ends
+            this.playerAttackHits.delete(player.currentAttackId);
+            player.currentAttackId = null;
           }, 500);
         }
 
@@ -341,9 +356,17 @@ export class map extends Room<MyRoomState> {
           }
         }
 
-        if (player.isAttacking) {
+        if (player.isAttacking && player.currentAttackId) {
           const attackRange = 32; // Adjust based on your attack animation
+          // Get the set of monsters already hit by this specific attack instance
+          const hitMonsters =
+            this.playerAttackHits.get(player.currentAttackId) ||
+            new Set<string>();
+
           this.state.spawnedMonsters.forEach((monster) => {
+            // Skip monsters that have already been hit by this specific attack
+            if (hitMonsters.has(monster.id)) return;
+
             // Check if monster is in attack range
             const dx = Math.abs(player.x - monster.x);
             const dy = Math.abs(player.y - monster.y);
@@ -354,8 +377,13 @@ export class map extends Room<MyRoomState> {
               monster.currentHealth > 0
             ) {
               monster.currentHealth -= 50;
+              // Mark this monster as hit by this specific attack
+              hitMonsters.add(monster.id);
             }
           });
+
+          // Update the set of hit monsters for this attack
+          this.playerAttackHits.set(player.currentAttackId, hitMonsters);
         }
       }
     });

@@ -2,11 +2,11 @@
   "123": {
     "username": "123",
     "password": "123",
-    "experience": 220,
-    "level": 3,
-    "lastRoom": "field1",
-    "lastX": 1188,
-    "lastY": 464
+    "experience": 325,
+    "level": 4,
+    "lastRoom": "field",
+    "lastX": 1452,
+    "lastY": 496
   },
   "asdf": {
     "username": "asdf",
@@ -20,11 +20,11 @@
   "b": {
     "username": "b",
     "password": "b",
-    "experience": 15,
+    "experience": 30,
     "level": 1,
-    "lastRoom": "field1",
-    "lastX": 1194,
-    "lastY": 464
+    "lastRoom": "field",
+    "lastX": 1492,
+    "lastY": 432
   },
   "a": {
     "username": "a",

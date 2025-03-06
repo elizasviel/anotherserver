@@ -80,6 +80,7 @@ export interface SpawnedPlayerInterface extends PlayerInterface {
   canJump: boolean;
   isAttacking: boolean;
   lastProcessedTick: number;
+  currentAttackId: string;
   inputQueue: InputData[];
 }
 

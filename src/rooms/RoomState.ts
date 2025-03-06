@@ -103,6 +103,7 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
   @type("boolean") canJump: boolean = true;
   @type("boolean") isAttacking: boolean = false;
   @type("number") lastProcessedTick: number = 0;
+  @type("string") currentAttackId: string = null;
   inputQueue: InputData[];
 
   constructor(
