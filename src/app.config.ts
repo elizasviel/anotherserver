@@ -23,7 +23,7 @@ export default config({
     gameServer.define("field1", map);
     (async () => {
       await matchMaker.createRoom("village", {
-        path: "./src/Maps/VillageMap.tmj",
+        path: "./src/maps/VillageMap.tmj",
         monsters: [
           {
             monsterType: boar,
@@ -56,7 +56,7 @@ export default config({
       });
 
       await matchMaker.createRoom("field", {
-        path: "./src/Maps/FieldMap.tmj",
+        path: "./src/maps/FieldMap.tmj",
         monsters: [
           {
             monsterType: boar,
@@ -89,7 +89,7 @@ export default config({
       });
 
       await matchMaker.createRoom("field1", {
-        path: "./src/Maps/FieldMap1.tmj",
+        path: "./src/maps/FieldMap1.tmj",
         monsters: [
           {
             monsterType: boar,
