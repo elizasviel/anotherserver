@@ -36,10 +36,6 @@ interface MapOptions {
 export class map extends Room<MyRoomState> {
   private readonly fixedTimeStep = 1000 / 60;
   private lastSpawnTimes: Map<string, number> = new Map();
-  // Track which monsters have been hit by each attack instance
-  private playerAttackHits: Map<string, Set<string>> = new Map();
-  // Counter to generate unique attack IDs
-  private attackCounter: number = 0;
 
   onCreate(options: MapOptions) {
     console.log("MAP: Creating map", options);
@@ -277,26 +273,33 @@ export class map extends Room<MyRoomState> {
         const prevY = player.y;
 
         if (input.attack && player.canAttack) {
+          console.log("MAP: Player is attacking");
+          const attackRange = 64; // Adjust based on your attack animation
+
+          this.state.spawnedMonsters.forEach((monster) => {
+            // Check if monster is in attack range
+            const dx = Math.abs(player.x - monster.x);
+            const dy = Math.abs(player.y - monster.y);
+
+            if (
+              dx < attackRange &&
+              dy < attackRange &&
+              monster.currentHealth > 0
+            ) {
+              monster.currentHealth -= 50;
+            }
+          });
           player.isAttacking = true;
           player.canAttack = false;
-
-          // Generate a unique attack ID for this attack instance
-          const attackId = `${player.id}_${this.attackCounter++}`;
-          // Store the attack ID on the player for reference in the damage calculation
-          player.currentAttackId = attackId;
-          // Initialize a new set for tracking monsters hit by this specific attack
-          this.playerAttackHits.set(attackId, new Set<string>());
 
           setTimeout(() => {
             player.canAttack = true;
             player.isAttacking = false;
-            // Clear the hit tracking for this specific attack when it ends
-            this.playerAttackHits.delete(player.currentAttackId);
-            player.currentAttackId = null;
           }, 500);
         }
 
         if (input.loot && player.canLoot) {
+          console.log("MAP: Player is looting");
           player.canLoot = false;
           this.handleLootCollection(player);
           setTimeout(() => {
@@ -358,36 +361,6 @@ export class map extends Room<MyRoomState> {
             break;
           }
         }
-
-        if (player.isAttacking && player.currentAttackId) {
-          const attackRange = 32; // Adjust based on your attack animation
-          // Get the set of monsters already hit by this specific attack instance
-          const hitMonsters =
-            this.playerAttackHits.get(player.currentAttackId) ||
-            new Set<string>();
-
-          this.state.spawnedMonsters.forEach((monster) => {
-            // Skip monsters that have already been hit by this specific attack
-            if (hitMonsters.has(monster.id)) return;
-
-            // Check if monster is in attack range
-            const dx = Math.abs(player.x - monster.x);
-            const dy = Math.abs(player.y - monster.y);
-
-            if (
-              dx < attackRange &&
-              dy < attackRange &&
-              monster.currentHealth > 0
-            ) {
-              monster.currentHealth -= 50;
-              // Mark this monster as hit by this specific attack
-              hitMonsters.add(monster.id);
-            }
-          });
-
-          // Update the set of hit monsters for this attack
-          this.playerAttackHits.set(player.currentAttackId, hitMonsters);
-        }
       }
     });
 
@@ -417,7 +390,7 @@ export class map extends Room<MyRoomState> {
               Date.now()
             );
             this.state.spawnedLoot.push(spawnedLoot);
-            console.log("LOOT: Added loot", spawnedLoot);
+            console.log("LOOT: Spawned loot");
           });
           this.state.spawnedMonsters.splice(index, 1);
           console.log("DEFEATED MONSTER");
@@ -479,13 +452,10 @@ export class map extends Room<MyRoomState> {
       // Move horizontally based on current behavior
       monster.x += monster.velocityX * monsterSpeed;
 
-      // Check horizontal collisions
-      let hasCollision = false;
       for (const obstacle of this.state.obstacles) {
         if (this.checkCollision(monster, obstacle)) {
           monster.x = prevX;
           monster.velocityX *= -1; // Reverse direction
-          hasCollision = true;
           break;
         }
       }
@@ -713,17 +683,8 @@ export class map extends Room<MyRoomState> {
     const now = Date.now();
 
     this.state.spawnedPlayers.forEach((player) => {
-      // Skip if player is invulnerable
-      if (player.isInvulnerable) {
-        // Check if invulnerability has expired
-        if (now - player.lastDamageTime > invulnerabilityDuration) {
-          player.isInvulnerable = false;
-        }
-        return;
-      }
-
-      // Skip if player is attacking (attacking players don't take damage)
-      if (player.isAttacking) {
+      // Skip if player is invulnerable or attacking
+      if (player.isInvulnerable || player.isAttacking) {
         return;
       }
 
@@ -732,7 +693,6 @@ export class map extends Room<MyRoomState> {
         if (monster.currentHealth <= 0) {
           return;
         }
-
         // Check collision between player and monster
         if (this.checkCollision(player, monster)) {
           // Apply damage to player
@@ -740,7 +700,9 @@ export class map extends Room<MyRoomState> {
 
           // Set invulnerability
           player.isInvulnerable = true;
-          player.lastDamageTime = now;
+          setTimeout(() => {
+            player.isInvulnerable = false;
+          }, invulnerabilityDuration);
 
           // Apply knockback based on relative positions
           const knockbackDirectionX = player.x < monster.x ? -1 : 1;
@@ -766,3 +728,4 @@ export class map extends Room<MyRoomState> {
 }
 
 //in reality, an attack input is not the same thing as the player attacking.
+//I could change invulnerability to be a integer instead of boolean and just decrement it every tick.

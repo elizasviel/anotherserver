@@ -129,7 +129,7 @@ export default config({
     // Enable CORS
     app.use(
       cors({
-        origin: "https://platformerclient-5a4e26f76ab1.herokuapp.com",
+        origin: ["http://localhost:2567", "http://localhost:1234"],
         credentials: true,
       })
     );

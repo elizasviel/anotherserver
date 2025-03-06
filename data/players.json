@@ -2,11 +2,11 @@
   "123": {
     "username": "123",
     "password": "123",
-    "experience": 330,
-    "level": 4,
-    "lastRoom": "field1",
-    "lastX": 69,
-    "lastY": 336
+    "experience": 580,
+    "level": 6,
+    "lastRoom": "field",
+    "lastX": 238,
+    "lastY": 496
   },
   "asdf": {
     "username": "asdf",

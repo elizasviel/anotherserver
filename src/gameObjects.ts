@@ -82,10 +82,9 @@ export interface SpawnedPlayerInterface extends PlayerInterface {
   canJump: boolean;
   isAttacking: boolean;
   lastProcessedTick: number;
-  currentAttackId: string;
+  lastDamageTime: number;
   inputQueue: InputData[];
   isInvulnerable: boolean;
-  lastDamageTime: number;
 }
 
 export const LOOT_TYPES: Record<string, LootInterface> = {
