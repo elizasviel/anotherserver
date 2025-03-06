@@ -5,8 +5,8 @@
     "experience": 330,
     "level": 4,
     "lastRoom": "field1",
-    "lastX": 1200,
-    "lastY": 144
+    "lastX": 100,
+    "lastY": 336
   },
   "asdf": {
     "username": "asdf",
@@ -22,9 +22,9 @@
     "password": "b",
     "experience": 70,
     "level": 1,
-    "lastRoom": "field1",
-    "lastX": 1201,
-    "lastY": 144
+    "lastRoom": "field",
+    "lastX": 144,
+    "lastY": 496
   },
   "a": {
     "username": "a",
