@@ -89,7 +89,7 @@ export default config({
       });
 
       await matchMaker.createRoom("field1", {
-        path: "./src/maps/FieldMap1.tmj",
+        path: "./src/maps/Fieldmap1.tmj",
         monsters: [
           {
             monsterType: boar,
