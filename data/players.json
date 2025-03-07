@@ -2,11 +2,11 @@
   "123": {
     "username": "123",
     "password": "123",
-    "experience": 580,
-    "level": 6,
-    "lastRoom": "field",
-    "lastX": 238,
-    "lastY": 496
+    "experience": 920,
+    "level": 10,
+    "lastRoom": "village",
+    "lastX": 610,
+    "lastY": 678
   },
   "asdf": {
     "username": "asdf",
@@ -20,11 +20,11 @@
   "b": {
     "username": "b",
     "password": "b",
-    "experience": 70,
-    "level": 1,
-    "lastRoom": "field1",
-    "lastX": 74,
-    "lastY": 336
+    "experience": 160,
+    "level": 2,
+    "lastRoom": "field",
+    "lastX": 82,
+    "lastY": 496
   },
   "a": {
     "username": "a",
@@ -34,5 +34,59 @@
     "lastRoom": "village",
     "lastX": 50,
     "lastY": 650
+  },
+  "g": {
+    "username": "g",
+    "password": "g",
+    "experience": 15,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 316,
+    "lastY": 614
+  },
+  "k": {
+    "username": "k",
+    "password": "k",
+    "experience": 25,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 1362,
+    "lastY": 496
+  },
+  "l": {
+    "username": "l",
+    "password": "l",
+    "experience": 10,
+    "level": 1,
+    "lastRoom": "field1",
+    "lastX": 1488,
+    "lastY": 144
+  },
+  "lklk": {
+    "username": "lklk",
+    "password": "lklk",
+    "experience": 455,
+    "level": 5,
+    "lastRoom": "village",
+    "lastX": 164,
+    "lastY": 336
+  },
+  "vv": {
+    "username": "vv",
+    "password": "vv",
+    "experience": 70,
+    "level": 1,
+    "lastRoom": "field1",
+    "lastX": 13,
+    "lastY": 318.5
+  },
+  "ll": {
+    "username": "ll",
+    "password": "ll",
+    "experience": 5,
+    "level": 1,
+    "lastRoom": "field1",
+    "lastX": 1195,
+    "lastY": 464
   }
 }
