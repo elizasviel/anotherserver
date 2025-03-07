@@ -373,25 +373,7 @@ export class map extends Room<MyRoomState> {
         const index = this.state.spawnedMonsters.indexOf(monster);
         if (index !== -1) {
           // Spawn loot before removing the monster
-          monster.potentialLoot.forEach((loot) => {
-            // Add random velocity for a "pop" effect
-            const randomVelocityX = (Math.random() - 0.5) * 4; // Random between -2 and 2
-            const randomVelocityY = -Math.random() * 3 - 2; // Random between -2 and -5 (upward)
-
-            const spawnedLoot = new SpawnedLoot(
-              uuidv4(),
-              loot.name,
-              monster.x,
-              monster.y,
-              randomVelocityX,
-              randomVelocityY,
-              loot.width,
-              loot.height,
-              Date.now()
-            );
-            this.state.spawnedLoot.push(spawnedLoot);
-            console.log("LOOT: Spawned loot");
-          });
+          this.spawnProbabilisticLoot(monster);
           this.state.spawnedMonsters.splice(index, 1);
           console.log("DEFEATED MONSTER");
         }
@@ -724,6 +706,46 @@ export class map extends Room<MyRoomState> {
         }
       });
     });
+  }
+
+  // Add this new method for probabilistic loot spawning
+  private spawnProbabilisticLoot(monster: SpawnedMonster) {
+    // Base number of loot items to spawn (can be adjusted based on monster type/level)
+    const baseItemCount = Math.floor(Math.random() * 3) + 1; // 1-3 items
+
+    // If monster has potential loot
+    if (monster.potentialLoot && monster.potentialLoot.length > 0) {
+      for (let i = 0; i < baseItemCount; i++) {
+        // Select a random loot item from the potential loot array
+        const randomIndex = Math.floor(
+          Math.random() * monster.potentialLoot.length
+        );
+        const selectedLoot = monster.potentialLoot[randomIndex];
+
+        // Add random velocity for a "pop" effect
+        const randomVelocityX = (Math.random() - 0.5) * 4; // Random between -2 and 2
+        const randomVelocityY = -Math.random() * 3 - 2; // Random between -2 and -5 (upward)
+
+        // Slightly randomize position to avoid all loot spawning at exact same spot
+        const offsetX = (Math.random() - 0.5) * 20;
+        const offsetY = (Math.random() - 0.5) * 10;
+
+        const spawnedLoot = new SpawnedLoot(
+          uuidv4(),
+          selectedLoot.name,
+          monster.x + offsetX,
+          monster.y + offsetY,
+          randomVelocityX,
+          randomVelocityY,
+          selectedLoot.width,
+          selectedLoot.height,
+          Date.now()
+        );
+
+        this.state.spawnedLoot.push(spawnedLoot);
+      }
+      console.log(`LOOT: Spawned ${baseItemCount} loot items`);
+    }
   }
 }
 
