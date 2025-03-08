@@ -11,29 +11,29 @@
   "1234": {
     "username": "1234",
     "password": "1234",
-    "experience": 650,
-    "level": 7,
-    "lastRoom": "field1",
-    "lastX": 1070,
-    "lastY": 272
+    "experience": 760,
+    "level": 8,
+    "lastRoom": "village",
+    "lastX": 613,
+    "lastY": 675.5
   },
   "asdf": {
     "username": "asdf",
     "password": "asdf",
-    "experience": 120,
+    "experience": 140,
     "level": 2,
-    "lastRoom": "field1",
-    "lastX": 1075,
-    "lastY": 272
+    "lastRoom": "field",
+    "lastX": 50,
+    "lastY": 496
   },
   "b": {
     "username": "b",
     "password": "b",
-    "experience": 160,
-    "level": 2,
-    "lastRoom": "field",
-    "lastX": 82,
-    "lastY": 496
+    "experience": 370,
+    "level": 4,
+    "lastRoom": "village",
+    "lastX": 1462,
+    "lastY": 528
   },
   "a": {
     "username": "a",
@@ -106,5 +106,23 @@
     "lastRoom": "field",
     "lastX": 66,
     "lastY": 496
+  },
+  "pp": {
+    "username": "pp",
+    "password": "pp",
+    "experience": 25,
+    "level": 1,
+    "lastRoom": "village",
+    "lastX": 1092,
+    "lastY": 560
+  },
+  "jj": {
+    "username": "jj",
+    "password": "jj",
+    "experience": 15,
+    "level": 1,
+    "lastRoom": "village",
+    "lastX": 1438,
+    "lastY": 528
   }
 }
