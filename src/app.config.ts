@@ -27,7 +27,7 @@ export default config({
         monsters: [
           {
             monsterType: snail,
-            spawnInterval: 2000,
+            spawnInterval: 5000,
             maxSpawned: 5,
           },
         ],
@@ -60,12 +60,12 @@ export default config({
         monsters: [
           {
             monsterType: boar,
-            spawnInterval: 2000,
+            spawnInterval: 5000,
             maxSpawned: 5,
           },
           {
             monsterType: whiteBoar,
-            spawnInterval: 2000,
+            spawnInterval: 5000,
             maxSpawned: 3,
           },
         ],
@@ -98,17 +98,17 @@ export default config({
         monsters: [
           {
             monsterType: boar,
-            spawnInterval: 2000,
+            spawnInterval: 5000,
             maxSpawned: 5,
           },
           {
             monsterType: bee,
-            spawnInterval: 2000,
+            spawnInterval: 5000,
             maxSpawned: 3,
           },
           {
             monsterType: blackBoar,
-            spawnInterval: 2000,
+            spawnInterval: 5000,
             maxSpawned: 1,
           },
         ],
