@@ -73,6 +73,22 @@ export class map extends Room<MyRoomState> {
       );
     });
 
+    // Add a cleanup interval for stuck loot items
+    setInterval(() => {
+      // Reset any loot items that have been marked as being collected for too long
+      const currentTime = Date.now();
+      this.state.spawnedLoot.forEach((loot) => {
+        if (loot.isBeingCollected) {
+          // If a loot item has been marked as being collected for more than 5 seconds, reset it
+          if (currentTime - loot.spawnTime > 5000) {
+            console.log(`MAP: Resetting stuck loot item ${loot.id}`);
+            loot.isBeingCollected = false;
+            loot.collectedBy = null;
+          }
+        }
+      });
+    }, 5000); // Check every 5 seconds
+
     this.onMessage(0, (_, input) => {
       //routes input to correct user, based on username
       const player = this.state.spawnedPlayers.find(
@@ -189,6 +205,18 @@ export class map extends Room<MyRoomState> {
         `MAP: Portal transition detected, spawning at ${spawnX}, ${spawnY}`
       );
     }
+
+    // Reset any loot items that are marked as being collected
+    // This ensures that loot is collectible when a new player joins
+    this.state.spawnedLoot.forEach((loot) => {
+      if (loot.isBeingCollected) {
+        console.log(
+          `MAP: Resetting loot item ${loot.id} for new player ${auth.username}`
+        );
+        loot.isBeingCollected = false;
+        loot.collectedBy = null;
+      }
+    });
 
     // Create a new spawned player with the auth data
     const spawnedPlayer = new SpawnedPlayer(
@@ -525,6 +553,11 @@ export class map extends Room<MyRoomState> {
         item.velocityY = 0;
       }
     });
+
+    // After updating player positions but before sending state
+    for (const player of this.state.spawnedPlayers) {
+      this.handlePlayerStuckInCollision(player);
+    }
   }
 
   private checkCollision(
@@ -656,6 +689,18 @@ export class map extends Room<MyRoomState> {
         this.state.spawnedLoot.splice(index, 1);
       }
     }, 10);
+
+    // Add a safety timeout to ensure the loot is removed
+    // This will only execute if the loot wasn't already removed by the first timeout
+    setTimeout(() => {
+      const index = this.state.spawnedLoot.indexOf(nearestLoot);
+      if (index !== -1) {
+        console.log(
+          `MAP: Safety removal of loot item ${nearestLoot.id} for player ${player.username}`
+        );
+        this.state.spawnedLoot.splice(index, 1);
+      }
+    }, 1000); // 1 second safety timeout
   }
 
   private handlePlayerMonsterCollisions() {
@@ -745,6 +790,48 @@ export class map extends Room<MyRoomState> {
         this.state.spawnedLoot.push(spawnedLoot);
       }
       console.log(`LOOT: Spawned ${baseItemCount} loot items`);
+    }
+  }
+
+  private handlePlayerStuckInCollision(player: SpawnedPlayer) {
+    // Check if player is stuck in any obstacle
+    for (const obstacle of this.state.obstacles) {
+      if (this.checkCollision(player, obstacle)) {
+        // Calculate push direction (away from center of obstacle)
+        const pushX = player.x - obstacle.x;
+        const pushY = player.y - obstacle.y;
+
+        // Normalize and apply push
+        const magnitude = Math.sqrt(pushX * pushX + pushY * pushY);
+        if (magnitude > 0) {
+          const pushDistance =
+            player.width / 2 + obstacle.width / 2 - magnitude + 5; // Add a small buffer
+          player.x += (pushX / magnitude) * pushDistance;
+          player.y += (pushY / magnitude) * pushDistance;
+        } else {
+          // If directly on top, push upward
+          player.y -= player.height / 2 + obstacle.height / 2 + 5;
+        }
+      }
+    }
+
+    // Also check for monster collisions
+    for (const monster of this.state.spawnedMonsters) {
+      if (this.checkCollision(player, monster)) {
+        // Similar push logic
+        const pushX = player.x - monster.x;
+        const pushY = player.y - monster.y;
+
+        const magnitude = Math.sqrt(pushX * pushX + pushY * pushY);
+        if (magnitude > 0) {
+          const pushDistance =
+            player.width / 2 + monster.width / 2 - magnitude + 5;
+          player.x += (pushX / magnitude) * pushDistance;
+          player.y += (pushY / magnitude) * pushDistance;
+        } else {
+          player.y -= player.height / 2 + monster.height / 2 + 5;
+        }
+      }
     }
   }
 }
