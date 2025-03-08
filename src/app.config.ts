@@ -9,7 +9,7 @@ import cors from "cors";
 
 let gameServerRef: Server;
 
-const { snail, bee, boar } = MONSTER_TYPES;
+const { snail, bee, boar, whiteBoar, blackBoar } = MONSTER_TYPES;
 
 export default config({
   options: {
@@ -63,6 +63,11 @@ export default config({
             spawnInterval: 2000,
             maxSpawned: 5,
           },
+          {
+            monsterType: whiteBoar,
+            spawnInterval: 2000,
+            maxSpawned: 3,
+          },
         ],
         portals: [
           {
@@ -100,6 +105,11 @@ export default config({
             monsterType: bee,
             spawnInterval: 2000,
             maxSpawned: 3,
+          },
+          {
+            monsterType: blackBoar,
+            spawnInterval: 2000,
+            maxSpawned: 1,
           },
         ],
         portals: [
