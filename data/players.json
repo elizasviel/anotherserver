@@ -2,13 +2,13 @@
   "123": {
     "username": "123",
     "password": "123",
-    "experience": 590,
-    "level": 6,
-    "lastRoom": "field1",
-    "lastX": 1424,
-    "lastY": 592,
-    "strength": 20,
-    "maxHealth": 150
+    "experience": 900,
+    "level": 10,
+    "lastRoom": "village",
+    "lastX": 1466,
+    "lastY": 400,
+    "strength": 28,
+    "maxHealth": 190
   },
   "qwe": {
     "username": "qwe",
