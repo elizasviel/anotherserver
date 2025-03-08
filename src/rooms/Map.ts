@@ -814,25 +814,6 @@ export class map extends Room<MyRoomState> {
         }
       }
     }
-
-    // Also check for monster collisions
-    for (const monster of this.state.spawnedMonsters) {
-      if (this.checkCollision(player, monster)) {
-        // Similar push logic
-        const pushX = player.x - monster.x;
-        const pushY = player.y - monster.y;
-
-        const magnitude = Math.sqrt(pushX * pushX + pushY * pushY);
-        if (magnitude > 0) {
-          const pushDistance =
-            player.width / 2 + monster.width / 2 - magnitude + 5;
-          player.x += (pushX / magnitude) * pushDistance;
-          player.y += (pushY / magnitude) * pushDistance;
-        } else {
-          player.y -= player.height / 2 + monster.height / 2 + 5;
-        }
-      }
-    }
   }
 }
 
