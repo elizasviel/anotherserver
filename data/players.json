@@ -2,13 +2,13 @@
   "123": {
     "username": "123",
     "password": "123",
-    "experience": 1470,
-    "level": 15,
-    "lastRoom": "field1",
-    "lastX": 706,
-    "lastY": 336,
-    "strength": 38,
-    "maxHealth": 240
+    "experience": 2695,
+    "level": 27,
+    "lastRoom": "village",
+    "lastX": 1496,
+    "lastY": 528,
+    "strength": 62,
+    "maxHealth": 360
   },
   "qwe": {
     "username": "qwe",
@@ -86,5 +86,27 @@
     "lastY": 528,
     "strength": 16,
     "maxHealth": 130
+  },
+  "dd": {
+    "username": "dd",
+    "password": "dd",
+    "experience": 55,
+    "level": 1,
+    "lastRoom": "village",
+    "lastX": 1023,
+    "lastY": 464,
+    "strength": 10,
+    "maxHealth": 100
+  },
+  "pppp": {
+    "username": "pppp",
+    "password": "pppp",
+    "experience": 260,
+    "level": 3,
+    "lastRoom": "village",
+    "lastX": 702.8073001688922,
+    "lastY": 624,
+    "strength": 14,
+    "maxHealth": 120
   }
 }
