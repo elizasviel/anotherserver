@@ -9,6 +9,8 @@ export interface PlayerData {
   lastRoom: string;
   lastX: number;
   lastY: number;
+  strength: number;
+  maxHealth: number;
 }
 
 class PlayerDataManager {
@@ -76,6 +78,8 @@ class PlayerDataManager {
       lastRoom: "field",
       lastX: 0,
       lastY: 0,
+      strength: 10,
+      maxHealth: 100,
     };
 
     this.players.set(username, playerData);

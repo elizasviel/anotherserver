@@ -73,22 +73,6 @@ export class map extends Room<MyRoomState> {
       );
     });
 
-    // Add a cleanup interval for stuck loot items
-    setInterval(() => {
-      // Reset any loot items that have been marked as being collected for too long
-      const currentTime = Date.now();
-      this.state.spawnedLoot.forEach((loot) => {
-        if (loot.isBeingCollected) {
-          // If a loot item has been marked as being collected for more than 5 seconds, reset it
-          if (currentTime - loot.spawnTime > 5000) {
-            console.log(`MAP: Resetting stuck loot item ${loot.id}`);
-            loot.isBeingCollected = false;
-            loot.collectedBy = null;
-          }
-        }
-      });
-    }, 5000); // Check every 5 seconds
-
     this.onMessage(0, (_, input) => {
       //routes input to correct user, based on username
       const player = this.state.spawnedPlayers.find(
@@ -234,8 +218,14 @@ export class map extends Room<MyRoomState> {
       true, // canLoot
       true, // canJump
       false, // isAttacking
-      []
+      [],
+      auth.maxHealth || 100 // Use the player's maxHealth from auth data, or default to 100
     );
+
+    // Set the player's strength from auth data
+    if (auth.strength !== undefined) {
+      spawnedPlayer.strength = auth.strength;
+    }
 
     this.state.spawnedPlayers.push(spawnedPlayer);
     console.log("MAP: Spawned player", spawnedPlayer.username, "at position:", {
@@ -257,6 +247,8 @@ export class map extends Room<MyRoomState> {
         lastY: player.y,
         experience: player.experience,
         level: player.level,
+        strength: player.strength,
+        maxHealth: player.maxHealth,
       });
 
       // Remove the player from the room
@@ -314,7 +306,23 @@ export class map extends Room<MyRoomState> {
               dy < attackRange &&
               monster.currentHealth > 0
             ) {
-              monster.currentHealth -= 50;
+              // Calculate damage based on player's strength
+              // Base damage is around 50 with a random factor
+              const baseDamage = player.strength * 5;
+              const randomFactor = 0.8 + Math.random() * 0.4; // Random between 0.8 and 1.2
+              let damage = Math.floor(baseDamage * randomFactor);
+
+              // 5% chance for critical hit (double damage)
+              const isCritical = Math.random() < 0.05;
+              if (isCritical) {
+                damage *= 2;
+                console.log("MAP: Critical hit! Damage:", damage);
+              }
+
+              monster.currentHealth -= damage;
+              console.log(
+                `MAP: Player dealt ${damage} damage to ${monster.name}`
+              );
             }
           });
           player.isAttacking = true;
@@ -678,7 +686,27 @@ export class map extends Room<MyRoomState> {
 
       // Level up logic if needed
       if (player.experience >= player.level * 100) {
+        const oldLevel = player.level;
         player.level += 1;
+
+        // Increase player's strength by 2 points per level
+        player.strength += 2;
+
+        // Increase player's max health by 10 points per level
+        player.maxHealth += 10;
+        player.currentHealth = player.maxHealth; // Heal to full on level up
+
+        console.log(
+          `MAP: Player ${player.username} leveled up to ${player.level}! STR increased to ${player.strength}`
+        );
+
+        // Persist the updated player data
+        playerDataManager.updatePlayerData(player.username, {
+          level: player.level,
+          experience: player.experience,
+          strength: player.strength,
+          maxHealth: player.maxHealth,
+        });
       }
     }
 
