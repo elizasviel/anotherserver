@@ -147,6 +147,7 @@ export default config({
         origin: [
           "http://localhost:2567",
           "http://localhost:1234",
+          "http://localhost:3000",
           "https://platformerclient-5a4e26f76ab1.herokuapp.com/",
         ],
         credentials: true,

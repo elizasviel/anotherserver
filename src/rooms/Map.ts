@@ -335,7 +335,6 @@ export class map extends Room<MyRoomState> {
         }
 
         if (input.loot && player.canLoot) {
-          console.log("MAP: Player is looting");
           player.canLoot = false;
           this.handleLootCollection(player);
           setTimeout(() => {
@@ -673,9 +672,6 @@ export class map extends Room<MyRoomState> {
       }
     }
 
-    // Collect only the nearest loot
-    console.log(`MAP: Player ${player.username} collecting nearest loot`);
-
     // Mark as being collected
     nearestLoot.isBeingCollected = true;
     nearestLoot.collectedBy = player.username;
@@ -716,7 +712,7 @@ export class map extends Room<MyRoomState> {
       if (index !== -1) {
         this.state.spawnedLoot.splice(index, 1);
       }
-    }, 10);
+    }, 100);
 
     // Add a safety timeout to ensure the loot is removed
     // This will only execute if the loot wasn't already removed by the first timeout
