@@ -308,7 +308,13 @@ export class map extends Room<MyRoomState> {
               });
               if (monster.currentHealth <= 0) {
                 player.experience += monster.experience;
-                if (player.experience >= player.level * 100) {
+                // Calculate required XP using an exponential formula
+                // This makes leveling progressively harder as level increases
+                const requiredXP = Math.floor(
+                  100 * Math.pow(1.5, player.level - 1)
+                );
+
+                if (player.experience >= requiredXP) {
                   player.level += 1;
                   player.strength += 2;
                   player.maxHealth += 10;
