@@ -38,7 +38,6 @@ export class map extends Room<MyRoomState> {
   private lastSpawnTimes: Map<string, number> = new Map();
 
   onCreate(options: MapOptions) {
-    console.log("MAP: Creating map", options);
     this.setState(new MyRoomState());
     this.autoDispose = false;
     const mapData = JSON.parse(fs.readFileSync(options.path, "utf8"));
@@ -151,8 +150,6 @@ export class map extends Room<MyRoomState> {
     client: Client,
     options: { username: string; password: string }
   ) {
-    console.log("MAP: Auth attempt for user:", options.username);
-
     if (!options.username || !options.password) {
       throw new Error("Username and password are required");
     }
@@ -166,7 +163,6 @@ export class map extends Room<MyRoomState> {
       throw new Error("Invalid credentials");
     }
 
-    console.log("MAP: Auth successful for user:", options.username);
     return playerData; // Return the full player data to be used in onJoin
   }
 
@@ -174,8 +170,6 @@ export class map extends Room<MyRoomState> {
     if (!auth || !auth.username) {
       throw new Error("Authentication data not found");
     }
-
-    console.log("ONJOIN AUTH", auth);
 
     // Check if this is a portal transition by looking for targetX and targetY in options
     let spawnX = auth.lastX || 100;
@@ -185,9 +179,6 @@ export class map extends Room<MyRoomState> {
     if (options.targetX !== undefined && options.targetY !== undefined) {
       spawnX = options.targetX;
       spawnY = options.targetY;
-      console.log(
-        `MAP: Portal transition detected, spawning at ${spawnX}, ${spawnY}`
-      );
     }
 
     // Reset any loot items that are marked as being collected
@@ -228,14 +219,9 @@ export class map extends Room<MyRoomState> {
     }
 
     this.state.spawnedPlayers.push(spawnedPlayer);
-    console.log("MAP: Spawned player", spawnedPlayer.username, "at position:", {
-      x: spawnedPlayer.x,
-      y: spawnedPlayer.y,
-    });
   }
 
   onLeave(client: Client) {
-    console.log("MAP: On leave", client.auth);
     const player = this.state.spawnedPlayers.find(
       (p) => p.username === client.auth.username
     );
@@ -259,12 +245,6 @@ export class map extends Room<MyRoomState> {
         this.state.spawnedPlayers.splice(index, 1);
       }
     }
-    console.log(
-      "MAP: Player left",
-      player,
-      "NEW STATE",
-      this.state.spawnedPlayers
-    );
   }
 
   onDispose() {
@@ -293,9 +273,7 @@ export class map extends Room<MyRoomState> {
         const prevY = player.y;
 
         if (input.attack && player.canAttack) {
-          console.log("MAP: Player is attacking");
           const attackRange = 64; // Adjust based on your attack animation
-
           this.state.spawnedMonsters.forEach((monster) => {
             // Check if monster is in attack range
             const dx = Math.abs(player.x - monster.x);
@@ -316,13 +294,13 @@ export class map extends Room<MyRoomState> {
               const isCritical = Math.random() < 0.05;
               if (isCritical) {
                 damage *= 2;
-                console.log("MAP: Critical hit! Damage:", damage);
               }
 
               monster.currentHealth -= damage;
-              console.log(
-                `MAP: Player dealt ${damage} damage to ${monster.name}`
-              );
+              this.broadcast("monster-took-damage", {
+                monsterId: monster.id,
+                damage: damage,
+              });
             }
           });
           player.isAttacking = true;
@@ -410,7 +388,6 @@ export class map extends Room<MyRoomState> {
           // Spawn loot before removing the monster
           this.spawnProbabilisticLoot(monster);
           this.state.spawnedMonsters.splice(index, 1);
-          console.log("DEFEATED MONSTER");
         }
         return;
       }

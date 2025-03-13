@@ -101,23 +101,34 @@
   "pppp": {
     "username": "pppp",
     "password": "pppp",
-    "experience": 260,
-    "level": 3,
-    "lastRoom": "village",
-    "lastX": 702.8073001688922,
-    "lastY": 624,
-    "strength": 14,
-    "maxHealth": 120
+    "experience": 620,
+    "level": 7,
+    "lastRoom": "field",
+    "lastX": 798.2623848959056,
+    "lastY": 496,
+    "strength": 22,
+    "maxHealth": 160
   },
   "kk": {
     "username": "kk",
     "password": "kk",
-    "experience": 1000,
+    "experience": 1005,
     "level": 11,
-    "lastRoom": "field",
-    "lastX": 79.6988022319996,
-    "lastY": 496,
+    "lastRoom": "village",
+    "lastX": 1023,
+    "lastY": 464,
     "strength": 30,
     "maxHealth": 200
+  },
+  "qqqq": {
+    "username": "qqqq",
+    "password": "qqqq",
+    "experience": 370,
+    "level": 4,
+    "lastRoom": "field1",
+    "lastX": 1132.5435362599542,
+    "lastY": 208,
+    "strength": 16,
+    "maxHealth": 130
   }
 }
