@@ -94,7 +94,7 @@ export const LOOT_TYPES: Record<string, LootInterface> = {
 export const MONSTER_TYPES: Record<string, MonsterInterface> = {
   snail: {
     name: "Snail",
-    maxHealth: 50,
+    maxHealth: 100,
     damage: 5,
     height: 24,
     width: 24,
@@ -104,8 +104,8 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
   },
   bee: {
     name: "Bee",
-    maxHealth: 10,
-    damage: 20,
+    maxHealth: 150,
+    damage: 10,
     height: 32,
     width: 32,
     detectionRange: 150,
@@ -114,7 +114,7 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
   },
   boar: {
     name: "Boar",
-    maxHealth: 150,
+    maxHealth: 200,
     damage: 20,
     height: 50,
     width: 50,
@@ -128,12 +128,12 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
   },
   blackBoar: {
     name: "Black Boar",
-    maxHealth: 500,
-    damage: 25,
+    maxHealth: 1000,
+    damage: 100,
     height: 100,
     width: 100,
     detectionRange: 300,
-    experience: 100,
+    experience: 500,
     potentialLoot: [
       LOOT_TYPES.largeCoin,
       LOOT_TYPES.largeCoin,
@@ -144,8 +144,8 @@ export const MONSTER_TYPES: Record<string, MonsterInterface> = {
   },
   whiteBoar: {
     name: "White Boar",
-    maxHealth: 250,
-    damage: 25,
+    maxHealth: 500,
+    damage: 50,
     height: 50,
     width: 50,
     detectionRange: 300,
