@@ -7,7 +7,7 @@ import {
 } from "./RoomState";
 import { Room, Client } from "colyseus";
 import { playerDataManager, PlayerData } from "../playerData";
-import { SpawnedPlayer } from "./RoomState";
+import { SpawnedPlayer, Loot } from "./RoomState";
 import { TiledMapParser } from "./TiledMapParser";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
@@ -30,6 +30,7 @@ interface MapOptions {
     targetRoom: string;
     targetX: number;
     targetY: number;
+    isOneWayPlatform: boolean;
   }[];
 }
 
@@ -67,29 +68,21 @@ export class map extends Room<MyRoomState> {
           portal.height,
           portal.targetRoom,
           portal.targetX,
-          portal.targetY
+          portal.targetY,
+          portal.isOneWayPlatform
         )
       );
     });
 
     this.onMessage(0, (_, input) => {
-      //routes input to correct user, based on username
       const player = this.state.spawnedPlayers.find(
         (player) => player.username === input.username
       );
-      if (!player) {
-        console.warn(
-          `MAP: Player not found for input from username: ${input.username}`
-        );
-        return;
-      }
       player.inputQueue.push(input);
     });
 
-    // Handle chat messages
     this.onMessage("chat", (client, message) => {
       try {
-        // Broadcast the message to all clients
         this.broadcast("chat", {
           username: client.auth.username,
           text: message.text,
@@ -99,7 +92,6 @@ export class map extends Room<MyRoomState> {
       }
     });
 
-    // Initialize spawn times for each monster type
     options.monsters.forEach((m) => {
       this.lastSpawnTimes.set(m.monsterType.name, 0);
     });
@@ -209,15 +201,18 @@ export class map extends Room<MyRoomState> {
       true, // canLoot
       true, // canJump
       false, // isAttacking
-      [],
-      auth.maxHealth || 100 // Use the player's maxHealth from auth data, or default to 100
+      0, // lastProcessedTick
+      0, // lastDamageTime
+      auth.maxHealth,
+      auth.maxHealth,
+      false, // isInvulnerable
+      auth.strength,
+      auth.inventory.map((item) => ({
+        loot: new Loot(item.loot.name, item.loot.width, item.loot.height),
+        quantity: item.quantity,
+      })),
+      [] // inputQueue
     );
-
-    // Set the player's strength from auth data
-    if (auth.strength !== undefined) {
-      spawnedPlayer.strength = auth.strength;
-    }
-
     this.state.spawnedPlayers.push(spawnedPlayer);
   }
 
@@ -226,6 +221,15 @@ export class map extends Room<MyRoomState> {
       (p) => p.username === client.auth.username
     );
     if (player) {
+      // Convert MapSchema inventory back to array format for storage
+      const inventoryArray = [];
+      player.inventory.forEach((loot, key) => {
+        inventoryArray.push({
+          loot: loot,
+          quantity: player.inventoryQuantities.get(key) || 0,
+        });
+      });
+
       // Save the player's last position and room before they leave
       playerDataManager.updatePlayerData(player.username, {
         lastRoom: this.roomName,
@@ -235,6 +239,7 @@ export class map extends Room<MyRoomState> {
         level: player.level,
         strength: player.strength,
         maxHealth: player.maxHealth,
+        inventory: inventoryArray,
       });
 
       // Remove the player from the room
@@ -301,6 +306,21 @@ export class map extends Room<MyRoomState> {
                 monsterId: monster.id,
                 damage: damage,
               });
+              if (monster.currentHealth <= 0) {
+                player.experience += monster.experience;
+                if (player.experience >= player.level * 100) {
+                  player.level += 1;
+                  player.strength += 2;
+                  player.maxHealth += 10;
+                  player.currentHealth = player.maxHealth;
+                  playerDataManager.updatePlayerData(player.username, {
+                    level: player.level,
+                    experience: player.experience,
+                    strength: player.strength,
+                    maxHealth: player.maxHealth,
+                  });
+                }
+              }
             }
           });
           player.isAttacking = true;
@@ -326,21 +346,21 @@ export class map extends Room<MyRoomState> {
         if (!player.isAttacking) {
           if (input.left) {
             player.x -= horizontalVelocity;
-            player.velocityX = -horizontalVelocity; // Set velocityX negative when moving left
+            player.velocityX = -horizontalVelocity;
             for (const obstacle of this.state.obstacles) {
               if (this.checkCollision(player, obstacle)) {
                 player.x = prevX;
-                player.velocityX = 0; // Reset velocityX on collision
+                player.velocityX = 0;
                 break;
               }
             }
           } else if (input.right) {
             player.x += horizontalVelocity;
-            player.velocityX = horizontalVelocity; // Set velocityX positive when moving right
+            player.velocityX = horizontalVelocity;
             for (const obstacle of this.state.obstacles) {
               if (this.checkCollision(player, obstacle)) {
                 player.x = prevX;
-                player.velocityX = 0; // Reset velocityX on collision
+                player.velocityX = 0;
                 break;
               }
             }
@@ -348,7 +368,7 @@ export class map extends Room<MyRoomState> {
 
           if (input.jump && player.canJump) {
             player.velocityY = jumpVelocity;
-            player.canJump = false; // Set canJump to false when jumping
+            player.canJump = false;
           }
         }
 
@@ -360,13 +380,13 @@ export class map extends Room<MyRoomState> {
 
         for (const obstacle of this.state.obstacles) {
           if (this.checkCollision(player, obstacle)) {
-            const playerBottom = prevY + 16; //Y is the center of the player, add 16 to get the bottom edge.
-            const obstacleTop = obstacle.y - obstacle.height / 2; // Y coordinate is the center of the obstacle, subtract to get the top edge.
+            const playerBottom = prevY + 16;
+            const obstacleTop = obstacle.y - obstacle.height / 2;
 
             if (playerBottom <= obstacleTop) {
               player.y = obstacleTop - 16;
               player.velocityY = 0;
-              player.canJump = true; // Set canJump to true when on ground
+              player.canJump = true;
             } else {
               player.y = prevY;
               player.velocityY = 0;
@@ -653,34 +673,27 @@ export class map extends Room<MyRoomState> {
     nearestLoot.isBeingCollected = true;
     nearestLoot.collectedBy = player.username;
 
-    // Add experience to the player
-    if (nearestLoot.name.includes("Coin")) {
-      player.experience += 5; // Adjust experience value as needed
+    try {
+      // Use the loot name as the key
+      const lootId = nearestLoot.name;
 
-      // Level up logic if needed
-      if (player.experience >= player.level * 100) {
-        const oldLevel = player.level;
-        player.level += 1;
-
-        // Increase player's strength by 2 points per level
-        player.strength += 2;
-
-        // Increase player's max health by 10 points per level
-        player.maxHealth += 10;
-        player.currentHealth = player.maxHealth; // Heal to full on level up
-
-        console.log(
-          `MAP: Player ${player.username} leveled up to ${player.level}! STR increased to ${player.strength}`
+      // Check if this type of loot is already in the inventory
+      if (player.inventory.has(lootId)) {
+        // Increase quantity
+        const currentQuantity = player.inventoryQuantities.get(lootId) || 0;
+        player.inventoryQuantities.set(lootId, currentQuantity + 1);
+      } else {
+        // Add new loot to inventory
+        const lootItem = new Loot(
+          nearestLoot.name,
+          nearestLoot.width,
+          nearestLoot.height
         );
-
-        // Persist the updated player data
-        playerDataManager.updatePlayerData(player.username, {
-          level: player.level,
-          experience: player.experience,
-          strength: player.strength,
-          maxHealth: player.maxHealth,
-        });
+        player.inventory.set(lootId, lootItem);
+        player.inventoryQuantities.set(lootId, 1);
       }
+    } catch (error) {
+      console.error("Error adding item to inventory:", error);
     }
 
     // Remove the loot after a short delay (for collection animation)
@@ -690,24 +703,12 @@ export class map extends Room<MyRoomState> {
         this.state.spawnedLoot.splice(index, 1);
       }
     }, 100);
-
-    // Add a safety timeout to ensure the loot is removed
-    // This will only execute if the loot wasn't already removed by the first timeout
-    setTimeout(() => {
-      const index = this.state.spawnedLoot.indexOf(nearestLoot);
-      if (index !== -1) {
-        console.log(
-          `MAP: Safety removal of loot item ${nearestLoot.id} for player ${player.username}`
-        );
-        this.state.spawnedLoot.splice(index, 1);
-      }
-    }, 1000); // 1 second safety timeout
   }
 
   private handlePlayerMonsterCollisions() {
     const touchDamage = 10;
     const knockbackForce = 5;
-    const invulnerabilityDuration = 1000; // 1 second of invulnerability
+    const invulnerabilityDuration = 1000;
     const now = Date.now();
 
     this.state.spawnedPlayers.forEach((player) => {
@@ -817,6 +818,3 @@ export class map extends Room<MyRoomState> {
     }
   }
 }
-
-//in reality, an attack input is not the same thing as the player attacking.
-//I could change invulnerability to be a integer instead of boolean and just decrement it every tick.

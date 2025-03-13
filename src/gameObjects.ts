@@ -65,17 +65,14 @@ export interface PlayerInterface {
   maxHealth: number;
   currentHealth: number;
   strength: number;
+  inventory: any;
 }
 
 export interface SpawnedPlayerInterface extends PlayerInterface {
-  id: string;
-  username: string;
   x: number;
   y: number;
   velocityX: number;
   velocityY: number;
-  experience: number;
-  level: number;
   height: number;
   width: number;
   canAttack: boolean;
@@ -86,7 +83,6 @@ export interface SpawnedPlayerInterface extends PlayerInterface {
   lastDamageTime: number;
   inputQueue: InputData[];
   isInvulnerable: boolean;
-  strength: number;
 }
 
 export const LOOT_TYPES: Record<string, LootInterface> = {

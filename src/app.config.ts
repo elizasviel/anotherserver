@@ -41,6 +41,7 @@ export default config({
             targetRoom: "field",
             targetX: 1550,
             targetY: 420,
+            isOneWayPlatform: false,
           },
           {
             id: "field1-portal",
@@ -51,6 +52,7 @@ export default config({
             targetRoom: "field1",
             targetX: 50,
             targetY: 320,
+            isOneWayPlatform: false,
           },
         ],
       });
@@ -79,6 +81,7 @@ export default config({
             targetRoom: "village",
             targetX: 80,
             targetY: 650,
+            isOneWayPlatform: false,
           },
           {
             id: "field1-portal",
@@ -89,6 +92,7 @@ export default config({
             targetRoom: "field1",
             targetX: 1550,
             targetY: 420,
+            isOneWayPlatform: false,
           },
         ],
       });
@@ -122,6 +126,7 @@ export default config({
             targetRoom: "field",
             targetX: 50,
             targetY: 460,
+            isOneWayPlatform: false,
           },
           {
             id: "village-portal1",
@@ -132,6 +137,7 @@ export default config({
             targetRoom: "village",
             targetX: 1550,
             targetY: 620,
+            isOneWayPlatform: false,
           },
         ],
       });

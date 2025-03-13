@@ -1,4 +1,4 @@
-import { Schema, type } from "@colyseus/schema";
+import { Schema, type, ArraySchema, MapSchema } from "@colyseus/schema";
 import {
   MonsterInterface,
   SpawnedMonsterInterface,
@@ -36,9 +36,9 @@ export class Obstacle extends Schema implements ObstacleInterface {
 }
 
 export class Loot extends Schema implements LootInterface {
-  @type("string") name: string = "";
-  @type("number") width: number = 32;
-  @type("number") height: number = 32;
+  @type("string") name: string;
+  @type("number") width: number;
+  @type("number") height: number;
 
   constructor(name: string, width: number, height: number) {
     super();
@@ -49,17 +49,17 @@ export class Loot extends Schema implements LootInterface {
 }
 
 export class SpawnedLoot extends Schema implements SpawnedLootInterface {
-  @type("string") id: string = "";
-  @type("string") name: string = "";
+  @type("string") id: string;
+  @type("string") name: string;
   @type("number") x: number;
   @type("number") y: number;
-  @type("number") velocityX: number = 0;
-  @type("number") velocityY: number = 0;
-  @type("number") width: number = 32;
-  @type("number") height: number = 32;
-  @type("number") spawnTime: number = Date.now();
-  @type("string") collectedBy: string = null;
-  @type("boolean") isBeingCollected: boolean = false;
+  @type("number") velocityX: number;
+  @type("number") velocityY: number;
+  @type("number") width: number;
+  @type("number") height: number;
+  @type("number") spawnTime: number;
+  @type("string") collectedBy: string;
+  @type("boolean") isBeingCollected: boolean;
 
   constructor(
     id: string,
@@ -88,26 +88,28 @@ export class SpawnedLoot extends Schema implements SpawnedLootInterface {
 }
 
 export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
-  @type("string") id: string = "";
-  @type("string") username: string = "";
+  @type("string") id: string;
+  @type("string") username: string;
   @type("number") x: number;
   @type("number") y: number;
   @type("number") velocityX: number;
   @type("number") velocityY: number;
-  @type("number") experience: number = 0;
-  @type("number") level: number = 1;
-  @type("number") height: number = 32;
-  @type("number") width: number = 32;
-  @type("boolean") canAttack: boolean = true;
-  @type("boolean") canLoot: boolean = true;
-  @type("boolean") canJump: boolean = true;
-  @type("boolean") isAttacking: boolean = false;
-  @type("number") lastProcessedTick: number = 0;
-  @type("number") lastDamageTime: number = 0;
-  @type("number") maxHealth: number = 100;
-  @type("number") currentHealth: number = 100;
-  @type("boolean") isInvulnerable: boolean = false;
-  @type("number") strength: number = 10;
+  @type("number") experience: number;
+  @type("number") level: number;
+  @type("number") height: number;
+  @type("number") width: number;
+  @type("boolean") canAttack: boolean;
+  @type("boolean") canLoot: boolean;
+  @type("boolean") canJump: boolean;
+  @type("boolean") isAttacking: boolean;
+  @type("number") lastProcessedTick: number;
+  @type("number") lastDamageTime: number;
+  @type("number") maxHealth: number;
+  @type("number") currentHealth: number;
+  @type("boolean") isInvulnerable: boolean;
+  @type("number") strength: number;
+  @type({ map: Loot }) inventory = new MapSchema<Loot>();
+  @type({ map: "number" }) inventoryQuantities = new MapSchema<number>();
   inputQueue: InputData[];
 
   constructor(
@@ -125,8 +127,14 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     canLoot: boolean,
     canJump: boolean,
     isAttacking: boolean,
-    inputQueue: InputData[],
-    maxHealth: number = 100
+    lastProcessedTick: number,
+    lastDamageTime: number,
+    maxHealth: number,
+    currentHealth: number,
+    isInvulnerable: boolean,
+    strength: number,
+    inventory: { loot: Loot; quantity: number }[],
+    inputQueue: InputData[]
   ) {
     super();
     this.id = id;
@@ -144,34 +152,43 @@ export class SpawnedPlayer extends Schema implements SpawnedPlayerInterface {
     this.canJump = canJump;
     this.isAttacking = isAttacking;
     this.inputQueue = inputQueue;
-    this.lastProcessedTick = 0;
-    this.lastDamageTime = 0;
+    this.lastProcessedTick = lastProcessedTick;
+    this.lastDamageTime = lastDamageTime;
     this.maxHealth = maxHealth;
-    this.currentHealth = maxHealth;
-    this.isInvulnerable = false;
-    this.strength = 10;
+    this.currentHealth = currentHealth;
+    this.isInvulnerable = isInvulnerable;
+    this.strength = strength;
+
+    // Convert inventory items to MapSchema
+    if (inventory) {
+      inventory.forEach((item) => {
+        const lootId = item.loot.name; // Use name as the key
+        this.inventory.set(lootId, item.loot);
+        this.inventoryQuantities.set(lootId, item.quantity);
+      });
+    }
   }
 }
 
 export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
-  @type("string") name: string = "";
+  @type("string") id: string;
+  @type("string") name: string;
+  @type("number") x: number;
+  @type("number") y: number;
+  @type("number") velocityX: number;
+  @type("number") velocityY: number;
   @type("number") maxHealth: number;
+  @type("number") currentHealth: number;
   @type("number") damage: number;
   @type("number") height: number;
   @type("number") width: number;
   @type("number") detectionRange: number;
   @type("number") experience: number;
-  @type([Loot]) potentialLoot: Loot[] = [];
-  @type("string") id: string = "";
-  @type("number") x: number;
-  @type("number") y: number;
-  @type("number") velocityX: number;
-  @type("number") velocityY: number;
-  @type("number") currentHealth: number;
   @type("boolean") canJump: boolean;
   @type("string") behaviorState: string;
   @type("number") behaviorTimer: number;
   @type("number") behaviorDuration: number;
+  @type([Loot]) potentialLoot: Loot[];
 
   constructor(
     id: string,
@@ -184,7 +201,7 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
     this.name = monsterType.name;
     this.x = spawnX;
     this.y = spawnY;
-    this.velocityX = 1;
+    this.velocityX = 0;
     this.velocityY = 0;
     this.maxHealth = monsterType.maxHealth;
     this.currentHealth = monsterType.maxHealth;
@@ -193,13 +210,13 @@ export class SpawnedMonster extends Schema implements SpawnedMonsterInterface {
     this.width = monsterType.width;
     this.detectionRange = monsterType.detectionRange;
     this.experience = monsterType.experience;
-    this.potentialLoot = monsterType.potentialLoot.map(
-      (loot) => new Loot(loot.name, loot.width, loot.height)
-    );
     this.canJump = true;
     this.behaviorState = "idle";
     this.behaviorTimer = 0;
     this.behaviorDuration = Math.random() * 3000 + 1000;
+    this.potentialLoot = monsterType.potentialLoot.map(
+      (loot) => new Loot(loot.name, loot.width, loot.height)
+    );
   }
 }
 
@@ -207,12 +224,12 @@ export class Portal extends Schema {
   @type("string") id: string;
   @type("number") x: number;
   @type("number") y: number;
-  @type("number") width: number = 64;
-  @type("number") height: number = 64;
+  @type("number") width: number;
+  @type("number") height: number;
   @type("string") targetRoom: string;
   @type("number") targetX: number;
   @type("number") targetY: number;
-  @type("boolean") isOneWayPlatform: boolean = false;
+  @type("boolean") isOneWayPlatform: boolean;
 
   constructor(
     id: string,
@@ -222,7 +239,8 @@ export class Portal extends Schema {
     height: number,
     targetRoom: string,
     targetX: number,
-    targetY: number
+    targetY: number,
+    isOneWayPlatform: boolean
   ) {
     super();
     this.id = id;
@@ -233,6 +251,7 @@ export class Portal extends Schema {
     this.targetRoom = targetRoom;
     this.targetX = targetX;
     this.targetY = targetY;
+    this.isOneWayPlatform = isOneWayPlatform;
   }
 }
 
@@ -247,13 +266,4 @@ export class MyRoomState extends Schema {
   @type([Portal]) portals = new Array<Portal>();
 }
 
-//Room data is a superset of persisted data
-//Experience is persisted because we need it to be constant across rooms
-
-//Room data (in RoomState.ts) contains everything needed for the current game state, including transient data like player positions, velocities, input queues, etc.
-//Persisted data (in playerData.ts) contains only the essential data that needs to persist between sessions and across different rooms.
-
-//Experience is indeed a good example of data that needs to be persisted because:
-//It's accumulated across different rooms
-//It shouldn't reset when changing rooms or logging out
-//It's part of the player's progression
+//spawnloot concern
