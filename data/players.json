@@ -1,533 +1,14 @@
 {
-  "1111": {
-    "username": "1111",
-    "password": "1111",
-    "experience": 2220,
-    "level": 23,
-    "lastRoom": "field",
-    "lastX": 50,
-    "lastY": 496,
-    "strength": 54,
-    "maxHealth": 320,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 21
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 38
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 16
-      }
-    ]
-  },
-  "qq": {
-    "username": "qq",
-    "password": "qq",
-    "experience": 6980,
-    "level": 28,
-    "lastRoom": "village",
-    "lastX": 1550,
-    "lastY": 624,
-    "strength": 64,
-    "maxHealth": 370,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 26
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 48
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 69
-      }
-    ]
-  },
-  "v": {
-    "username": "v",
-    "password": "v",
-    "experience": 80,
-    "level": 1,
-    "lastRoom": "village",
-    "lastX": 80,
-    "lastY": 650,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 3
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 2
-      }
-    ]
-  },
-  "gg": {
-    "username": "gg",
-    "password": "gg",
-    "experience": 1350,
-    "level": 8,
-    "lastRoom": "field2",
-    "lastX": 204,
-    "lastY": 457505,
-    "strength": 24,
-    "maxHealth": 170,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 17
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 29
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 14
-      }
-    ]
-  },
-  "ff": {
-    "username": "ff",
-    "password": "ff",
-    "experience": 140,
-    "level": 2,
-    "lastRoom": "village",
-    "lastX": 708,
-    "lastY": 624,
-    "strength": 12,
-    "maxHealth": 110,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 4
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 5
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 1
-      }
-    ]
-  },
-  "o": {
-    "username": "o",
-    "password": "o",
-    "experience": 800,
-    "level": 9,
-    "lastRoom": "field1",
-    "lastX": 540,
-    "lastY": 336,
-    "strength": 26,
-    "maxHealth": 180,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 2
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 6
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 5
-      }
-    ]
-  },
-  "d": {
-    "username": "d",
-    "password": "d",
-    "experience": 100,
-    "level": 2,
-    "lastRoom": "field2",
-    "lastX": 167,
-    "lastY": 848,
-    "strength": 12,
-    "maxHealth": 110,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 5
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 2
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 2
-      }
-    ]
-  },
-  "a": {
-    "username": "a",
-    "password": "a",
-    "experience": 2360,
-    "level": 16,
-    "lastRoom": "field2",
-    "lastX": 343,
-    "lastY": 688,
-    "strength": 40,
-    "maxHealth": 250,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 51
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 21
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 29
-      }
-    ]
-  },
-  "g": {
-    "username": "g",
-    "password": "g",
-    "experience": 2660,
-    "level": 10,
-    "lastRoom": "village",
-    "lastX": 1516,
-    "lastY": 22760,
-    "strength": 28,
-    "maxHealth": 190,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 17
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 25
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 37
-      }
-    ]
-  },
-  "gggg": {
-    "username": "gggg",
-    "password": "gggg",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field1",
-    "lastX": 1484,
-    "lastY": 464,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "ğg": {
-    "username": "ğg",
-    "password": "gg",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field1",
-    "lastX": 1550,
-    "lastY": 464,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "ggg": {
-    "username": "ggg",
-    "password": "ggg",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field",
-    "lastX": 124,
-    "lastY": 496,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "h": {
-    "username": "h",
-    "password": "h",
-    "experience": 360,
-    "level": 5,
-    "lastRoom": "field2",
-    "lastX": 214,
-    "lastY": 432,
-    "strength": 18,
-    "maxHealth": 140,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 9
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 5
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 4
-      }
-    ]
-  },
-  "hh": {
-    "username": "hh",
-    "password": "hh",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field",
-    "lastX": 100,
-    "lastY": 496,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "aa": {
-    "username": "aa",
-    "password": "aa",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field",
-    "lastX": 50,
-    "lastY": 496,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "ww": {
-    "username": "ww",
-    "password": "ww",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field1",
-    "lastX": 222,
-    "lastY": 336,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "b": {
-    "username": "b",
-    "password": "b",
-    "experience": 2430,
-    "level": 9,
-    "lastRoom": "field2",
-    "lastX": 215,
-    "lastY": 1392,
-    "strength": 26,
-    "maxHealth": 180,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 41
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 27
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 26
-      }
-    ]
-  },
-  "aaa": {
-    "username": "aaa",
-    "password": "aaa",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field1",
-    "lastX": 994,
-    "lastY": 336,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
   "q": {
     "username": "q",
     "password": "q",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field2",
-    "lastX": 215,
-    "lastY": 4954846646.5,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "bbbb": {
-    "username": "bbbb",
-    "password": "bbbb",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field",
-    "lastX": 100,
-    "lastY": 496,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "kk": {
-    "username": "kk",
-    "password": "kk",
-    "experience": 40,
-    "level": 1,
+    "experience": 4470,
+    "level": 11,
     "lastRoom": "field1",
-    "lastX": 50,
-    "lastY": 336,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "k": {
-    "username": "k",
-    "password": "k",
-    "experience": 1940,
-    "level": 9,
-    "lastRoom": "field2",
-    "lastX": 295,
-    "lastY": 688,
-    "strength": 26,
-    "maxHealth": 180,
+    "lastX": 1275.3604068033783,
+    "lastY": 144,
+    "strength": 30,
+    "maxHealth": 200,
     "inventory": [
       {
         "loot": {
@@ -535,119 +16,8 @@
           "width": 32,
           "height": 32
         },
-        "quantity": 13
+        "quantity": 49
       },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 29
-      },
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 24
-      }
-    ]
-  },
-  "m": {
-    "username": "m",
-    "password": "m",
-    "experience": 10,
-    "level": 1,
-    "lastRoom": "field2",
-    "lastX": 138,
-    "lastY": 1392,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 1
-      }
-    ]
-  },
-  "r": {
-    "username": "r",
-    "password": "r",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field2",
-    "lastX": 1550,
-    "lastY": 32393,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "s": {
-    "username": "s",
-    "password": "s",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field2",
-    "lastX": 504,
-    "lastY": 1200,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "f": {
-    "username": "f",
-    "password": "f",
-    "experience": 700,
-    "level": 6,
-    "lastRoom": "field2",
-    "lastX": 111.94324449802338,
-    "lastY": 176,
-    "strength": 20,
-    "maxHealth": 150,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 9
-      },
-      {
-        "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
-        },
-        "quantity": 6
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 12
-      }
-    ]
-  },
-  "w": {
-    "username": "w",
-    "password": "w",
-    "experience": 3500,
-    "level": 10,
-    "lastRoom": "field2",
-    "lastX": 235.6996523920854,
-    "lastY": 432,
-    "strength": 28,
-    "maxHealth": 190,
-    "inventory": [
       {
         "loot": {
           "name": "Medium Coin",
@@ -662,7 +32,28 @@
           "width": 16,
           "height": 16
         },
-        "quantity": 46
+        "quantity": 54
+      }
+    ]
+  },
+  "qq": {
+    "username": "qq",
+    "password": "qq",
+    "experience": 2590,
+    "level": 10,
+    "lastRoom": "field2",
+    "lastX": 90,
+    "lastY": 464,
+    "strength": 28,
+    "maxHealth": 190,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 45
       },
       {
         "loot": {
@@ -670,8 +61,136 @@
           "width": 32,
           "height": 32
         },
-        "quantity": 34
+        "quantity": 22
+      },
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 21
       }
     ]
+  },
+  "b": {
+    "username": "b",
+    "password": "b",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "rr": {
+    "username": "rr",
+    "password": "rr",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "dd": {
+    "username": "dd",
+    "password": "dd",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "gg": {
+    "username": "gg",
+    "password": "gg",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 185,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "pp": {
+    "username": "pp",
+    "password": "pp",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "qqqq": {
+    "username": "qqqq",
+    "password": "qqqq",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "g": {
+    "username": "g",
+    "password": "g",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "qqq": {
+    "username": "qqq",
+    "password": "qqq",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "a": {
+    "username": "a",
+    "password": "a",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 100,
+    "lastY": 496,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  },
+  "f": {
+    "username": "f",
+    "password": "f",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 258,
+    "lastY": 560,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
   }
 }
