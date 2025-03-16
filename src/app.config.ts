@@ -21,6 +21,7 @@ export default config({
     gameServer.define("village", map);
     gameServer.define("field", map);
     gameServer.define("field1", map);
+    gameServer.define("field2", map);
     (async () => {
       await matchMaker.createRoom("village", {
         path: "./src/maps/VillageMap.tmj",
@@ -139,10 +140,44 @@ export default config({
             targetY: 620,
             isOneWayPlatform: false,
           },
+          {
+            id: "field2-portal1",
+            x: 1250,
+            y: 450,
+            width: 64,
+            height: 64,
+            targetRoom: "field2",
+            targetX: 50,
+            targetY: 460,
+            isOneWayPlatform: false,
+          },
+        ],
+      });
+
+      await matchMaker.createRoom("field2", {
+        path: "./src/maps/FieldMap2.tmj",
+        monsters: [
+          {
+            monsterType: boar,
+            spawnInterval: 5000,
+            maxSpawned: 5,
+          },
+        ],
+        portals: [
+          {
+            id: "field1-portal2",
+            x: 1550,
+            y: 450,
+            width: 64,
+            height: 64,
+            targetRoom: "field1",
+            targetX: 50,
+            targetY: 460,
+            isOneWayPlatform: false,
+          },
         ],
       });
     })();
-
     gameServerRef = gameServer;
   },
 
