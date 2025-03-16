@@ -37,6 +37,7 @@ interface MapOptions {
 export class map extends Room<MyRoomState> {
   private readonly fixedTimeStep = 1000 / 60;
   private lastSpawnTimes: Map<string, number> = new Map();
+  private monsterSpawnPoints: Array<{ x: number; y: number }> = [];
 
   onCreate(options: MapOptions) {
     this.setState(new MyRoomState());
@@ -57,6 +58,12 @@ export class map extends Room<MyRoomState> {
       );
       this.state.obstacles.push(obstacle);
     });
+
+    // Parse monster spawn points from the map
+    this.monsterSpawnPoints = TiledMapParser.parseMonsterSpawnPoints(mapData);
+    console.log(
+      `Found ${this.monsterSpawnPoints.length} monster spawn points in the map`
+    );
 
     options.portals.forEach((portal) => {
       this.state.portals.push(
@@ -120,14 +127,41 @@ export class map extends Room<MyRoomState> {
             // Update last spawn time
             this.lastSpawnTimes.set(m.monsterType.name, currentTime);
 
-            // Spawn immediately instead of using setTimeout
-            const monster = new SpawnedMonster(
-              uuidv4(),
-              m.monsterType,
-              this.state.mapWidth * 0.2,
-              this.state.mapHeight * 0.3
-            );
-            this.state.spawnedMonsters.push(monster);
+            // Only spawn if we have valid spawn points
+            if (this.monsterSpawnPoints.length > 0) {
+              // Randomly select a spawn point
+              const randomIndex = Math.floor(
+                Math.random() * this.monsterSpawnPoints.length
+              );
+              const spawnPoint = this.monsterSpawnPoints[randomIndex];
+
+              // Spawn monster at the selected point
+              // Adjust y position to place monster on top of the tile
+              const monster = new SpawnedMonster(
+                uuidv4(),
+                m.monsterType,
+                spawnPoint.x,
+                spawnPoint.y - m.monsterType.height / 2
+              );
+              this.state.spawnedMonsters.push(monster);
+              console.log(
+                `Spawned ${m.monsterType.name} at (${spawnPoint.x}, ${
+                  spawnPoint.y - m.monsterType.height / 2
+                })`
+              );
+            } else {
+              // Fallback to default spawn location if no spawn points are defined
+              console.warn(
+                "No monster spawn points found in map, using default location"
+              );
+              const monster = new SpawnedMonster(
+                uuidv4(),
+                m.monsterType,
+                this.state.mapWidth * 0.2,
+                this.state.mapHeight * 0.3
+              );
+              this.state.spawnedMonsters.push(monster);
+            }
           }
         });
       }

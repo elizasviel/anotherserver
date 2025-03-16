@@ -77,4 +77,27 @@ export class TiledMapParser {
 
     return colliders;
   }
+
+  static parseMonsterSpawnPoints(map: TiledMap) {
+    const spawnPoints: Array<{ x: number; y: number }> = [];
+    const { tilewidth, tileheight } = map;
+
+    map.layers[0].data.forEach((tileId: number, index: number) => {
+      if (tileId === 0) return; // Skip empty tiles
+
+      const properties = this.getTileProperties(map, tileId);
+      const isMonsterSpawn = properties.find(
+        (p) => p.name === "monster" && p.value === true
+      );
+
+      if (isMonsterSpawn) {
+        const x = (index % map.width) * tilewidth + tilewidth / 2;
+        const y = Math.floor(index / map.width) * tileheight;
+
+        spawnPoints.push({ x, y });
+      }
+    });
+
+    return spawnPoints;
+  }
 }

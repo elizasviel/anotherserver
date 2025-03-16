@@ -29,7 +29,7 @@ export default config({
           {
             monsterType: snail,
             spawnInterval: 5000,
-            maxSpawned: 5,
+            maxSpawned: 15,
           },
         ],
         portals: [
@@ -45,14 +45,14 @@ export default config({
             isOneWayPlatform: false,
           },
           {
-            id: "field1-portal",
+            id: "field2-portal",
             x: 1550,
             y: 620,
             width: 64,
             height: 64,
-            targetRoom: "field1",
+            targetRoom: "field2",
             targetX: 50,
-            targetY: 320,
+            targetY: 1375,
             isOneWayPlatform: false,
           },
         ],
@@ -64,12 +64,12 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 5,
+            maxSpawned: 15,
           },
           {
             monsterType: whiteBoar,
             spawnInterval: 5000,
-            maxSpawned: 3,
+            maxSpawned: 5,
           },
         ],
         portals: [
@@ -104,12 +104,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 5,
-          },
-          {
-            monsterType: bee,
-            spawnInterval: 5000,
-            maxSpawned: 3,
+            maxSpawned: 15,
           },
           {
             monsterType: blackBoar,
@@ -130,20 +125,9 @@ export default config({
             isOneWayPlatform: false,
           },
           {
-            id: "village-portal1",
+            id: "field2-portal1",
             x: 50,
             y: 320,
-            width: 64,
-            height: 64,
-            targetRoom: "village",
-            targetX: 1550,
-            targetY: 620,
-            isOneWayPlatform: false,
-          },
-          {
-            id: "field2-portal1",
-            x: 1250,
-            y: 450,
             width: 64,
             height: 64,
             targetRoom: "field2",
@@ -158,21 +142,37 @@ export default config({
         path: "./src/maps/FieldMap2.tmj",
         monsters: [
           {
+            monsterType: bee,
+            spawnInterval: 5000,
+            maxSpawned: 25,
+          },
+          {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 5,
+            maxSpawned: 15,
           },
         ],
         portals: [
           {
             id: "field1-portal2",
-            x: 1550,
+            x: 50,
             y: 450,
             width: 64,
             height: 64,
             targetRoom: "field1",
             targetX: 50,
-            targetY: 460,
+            targetY: 320,
+            isOneWayPlatform: false,
+          },
+          {
+            id: "village-portal2",
+            x: 50,
+            y: 1375,
+            width: 64,
+            height: 64,
+            targetRoom: "village",
+            targetX: 1550,
+            targetY: 550,
             isOneWayPlatform: false,
           },
         ],
