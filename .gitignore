@@ -3,4 +3,3 @@ node_modules
 bun.lockb
 package-lock.json
 /lib
-/node_modules
