@@ -64,7 +64,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 10,
+            maxSpawned: 20,
           },
           {
             monsterType: whiteBoar,
@@ -104,7 +104,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 10,
+            maxSpawned: 25,
           },
           {
             monsterType: blackBoar,
@@ -144,7 +144,7 @@ export default config({
           {
             monsterType: bee,
             spawnInterval: 5000,
-            maxSpawned: 10,
+            maxSpawned: 25,
           },
           {
             monsterType: boar,
