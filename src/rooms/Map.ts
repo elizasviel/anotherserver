@@ -144,11 +144,6 @@ export class map extends Room<MyRoomState> {
                 spawnPoint.y - m.monsterType.height / 2
               );
               this.state.spawnedMonsters.push(monster);
-              console.log(
-                `Spawned ${m.monsterType.name} at (${spawnPoint.x}, ${
-                  spawnPoint.y - m.monsterType.height / 2
-                })`
-              );
             } else {
               // Fallback to default spawn location if no spawn points are defined
               console.warn(
@@ -837,7 +832,6 @@ export class map extends Room<MyRoomState> {
 
         this.state.spawnedLoot.push(spawnedLoot);
       }
-      console.log(`LOOT: Spawned ${baseItemCount} loot items`);
     }
   }
 
