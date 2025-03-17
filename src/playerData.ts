@@ -116,5 +116,3 @@ class PlayerDataManager {
 }
 
 export const playerDataManager = PlayerDataManager.getInstance();
-
-//Persists player data including username and passwords
