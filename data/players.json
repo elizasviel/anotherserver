@@ -1,4 +1,41 @@
 {
+  "12": {
+    "username": "12",
+    "password": "12",
+    "experience": 1270,
+    "level": 8,
+    "lastRoom": "field",
+    "lastX": 173,
+    "lastY": 496,
+    "strength": 24,
+    "maxHealth": 170,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 7
+      },
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 32,
+          "height": 32
+        },
+        "quantity": 20
+      },
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 15
+      }
+    ]
+  },
   "q": {
     "username": "q",
     "password": "q",
@@ -192,5 +229,190 @@
     "strength": 10,
     "maxHealth": 100,
     "inventory": []
+  },
+  "w": {
+    "username": "w",
+    "password": "w",
+    "experience": 2360,
+    "level": 9,
+    "lastRoom": "field1",
+    "lastX": 866,
+    "lastY": 592,
+    "strength": 26,
+    "maxHealth": 180,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 32,
+          "height": 32
+        },
+        "quantity": 45
+      },
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 12
+      },
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 15
+      }
+    ]
+  },
+  "x": {
+    "username": "x",
+    "password": "x",
+    "experience": 4040,
+    "level": 11,
+    "lastRoom": "field1",
+    "lastX": 860,
+    "lastY": 592,
+    "strength": 30,
+    "maxHealth": 200,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 32,
+          "height": 32
+        },
+        "quantity": 46
+      },
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 15
+      },
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 21
+      }
+    ]
+  },
+  "xx": {
+    "username": "xx",
+    "password": "xx",
+    "experience": 1260,
+    "level": 8,
+    "lastRoom": "field",
+    "lastX": 1500,
+    "lastY": 432,
+    "strength": 24,
+    "maxHealth": 170,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 6
+      },
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 32,
+          "height": 32
+        },
+        "quantity": 5
+      },
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 4
+      }
+    ]
+  },
+  "r": {
+    "username": "r",
+    "password": "r",
+    "experience": 1360,
+    "level": 8,
+    "lastRoom": "field",
+    "lastX": 1120,
+    "lastY": 496,
+    "strength": 24,
+    "maxHealth": 170,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 12
+      },
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 10
+      },
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 32,
+          "height": 32
+        },
+        "quantity": 36
+      }
+    ]
+  },
+  "xxx": {
+    "username": "xxx",
+    "password": "xxx",
+    "experience": 1600,
+    "level": 8,
+    "lastRoom": "field",
+    "lastX": 226,
+    "lastY": 496,
+    "strength": 24,
+    "maxHealth": 170,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 32,
+          "height": 32
+        },
+        "quantity": 13
+      },
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 24,
+          "height": 24
+        },
+        "quantity": 10
+      },
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 9
+      }
+    ]
   }
 }

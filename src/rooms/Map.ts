@@ -359,6 +359,12 @@ export class map extends Room<MyRoomState> {
                     strength: player.strength,
                     maxHealth: player.maxHealth,
                   });
+
+                  // Broadcast level up event to all clients
+                  this.broadcast("player-level-up", {
+                    username: player.username,
+                    newLevel: player.level,
+                  });
                 }
               }
             }
