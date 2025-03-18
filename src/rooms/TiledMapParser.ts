@@ -51,30 +51,36 @@ export class TiledMapParser {
     const colliders: Array<{ x: number; y: number; isOneWay: boolean }> = [];
     const { tilewidth, tileheight } = map;
 
-    map.layers[0].data.forEach((tileId: number, index: number) => {
-      if (tileId === 0) return; // Skip empty tiles
+    // Process all layers instead of just the first one
+    map.layers.forEach((layer, layerIndex) => {
+      console.log(`Processing colliders for layer ${layerIndex}`);
 
-      const x = (index % map.width) * tilewidth + tilewidth / 2;
-      const y = Math.floor(index / map.width) * tileheight + tileheight / 2;
+      layer.data.forEach((tileId: number, index: number) => {
+        if (tileId === 0) return; // Skip empty tiles
 
-      const properties = this.getTileProperties(map, tileId);
+        const x = (index % map.width) * tilewidth + tilewidth / 2;
+        const y = Math.floor(index / map.width) * tileheight + tileheight / 2;
 
-      const hasCollision = properties.find(
-        (p) => p.name === "collision" && p.value === true
-      );
-      const isOneWay = properties.find(
-        (p) => p.name === "oneway" && p.value === true
-      );
+        const properties = this.getTileProperties(map, tileId);
 
-      if (hasCollision || isOneWay) {
-        colliders.push({
-          x,
-          y,
-          isOneWay: !!isOneWay,
-        });
-      }
+        const hasCollision = properties.find(
+          (p) => p.name === "collision" && p.value === true
+        );
+        const isOneWay = properties.find(
+          (p) => p.name === "oneway" && p.value === true
+        );
+
+        if (hasCollision || isOneWay) {
+          colliders.push({
+            x,
+            y,
+            isOneWay: !!isOneWay,
+          });
+        }
+      });
     });
 
+    console.log(`Total colliders parsed from all layers: ${colliders.length}`);
     return colliders;
   }
 
@@ -82,22 +88,30 @@ export class TiledMapParser {
     const spawnPoints: Array<{ x: number; y: number }> = [];
     const { tilewidth, tileheight } = map;
 
-    map.layers[0].data.forEach((tileId: number, index: number) => {
-      if (tileId === 0) return; // Skip empty tiles
+    // Process all layers instead of just the first one
+    map.layers.forEach((layer, layerIndex) => {
+      console.log(`Processing monster spawn points for layer ${layerIndex}`);
 
-      const properties = this.getTileProperties(map, tileId);
-      const isMonsterSpawn = properties.find(
-        (p) => p.name === "monster" && p.value === true
-      );
+      layer.data.forEach((tileId: number, index: number) => {
+        if (tileId === 0) return; // Skip empty tiles
 
-      if (isMonsterSpawn) {
-        const x = (index % map.width) * tilewidth + tilewidth / 2;
-        const y = Math.floor(index / map.width) * tileheight;
+        const properties = this.getTileProperties(map, tileId);
+        const isMonsterSpawn = properties.find(
+          (p) => p.name === "monster" && p.value === true
+        );
 
-        spawnPoints.push({ x, y });
-      }
+        if (isMonsterSpawn) {
+          const x = (index % map.width) * tilewidth + tilewidth / 2;
+          const y = Math.floor(index / map.width) * tileheight;
+
+          spawnPoints.push({ x, y });
+        }
+      });
     });
 
+    console.log(
+      `Total monster spawn points parsed from all layers: ${spawnPoints.length}`
+    );
     return spawnPoints;
   }
 }

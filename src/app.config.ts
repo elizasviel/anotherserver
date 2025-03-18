@@ -22,6 +22,7 @@ export default config({
     gameServer.define("field", map);
     gameServer.define("field1", map);
     gameServer.define("field2", map);
+    gameServer.define("house", map);
     (async () => {
       await matchMaker.createRoom("village", {
         path: "./src/maps/VillageMap.tmj",
@@ -45,6 +46,17 @@ export default config({
             isOneWayPlatform: false,
           },
           {
+            id: "house-portal",
+            x: 1300,
+            y: 620,
+            width: 64,
+            height: 64,
+            targetRoom: "house",
+            targetX: 100,
+            targetY: 620,
+            isOneWayPlatform: false,
+          },
+          {
             id: "field2-portal",
             x: 1550,
             y: 620,
@@ -64,7 +76,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 20,
+            maxSpawned: 10,
           },
           {
             monsterType: whiteBoar,
@@ -104,7 +116,7 @@ export default config({
           {
             monsterType: boar,
             spawnInterval: 5000,
-            maxSpawned: 25,
+            maxSpawned: 10,
           },
           {
             monsterType: blackBoar,
@@ -144,7 +156,7 @@ export default config({
           {
             monsterType: bee,
             spawnInterval: 5000,
-            maxSpawned: 25,
+            maxSpawned: 10,
           },
           {
             monsterType: boar,
@@ -173,6 +185,24 @@ export default config({
             targetRoom: "village",
             targetX: 1550,
             targetY: 550,
+            isOneWayPlatform: false,
+          },
+        ],
+      });
+
+      await matchMaker.createRoom("house", {
+        path: "./src/maps/HouseMap.tmj",
+        monsters: [],
+        portals: [
+          {
+            id: "house-portal",
+            x: 100,
+            y: 590,
+            width: 64,
+            height: 64,
+            targetRoom: "village",
+            targetX: 1300,
+            targetY: 620,
             isOneWayPlatform: false,
           },
         ],

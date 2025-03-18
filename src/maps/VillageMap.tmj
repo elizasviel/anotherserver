@@ -439,11 +439,6 @@
                  "id":456,
                  "properties":[
                         {
-                         "name":"monster",
-                         "type":"bool",
-                         "value":true
-                        }, 
-                        {
                          "name":"oneway",
                          "type":"bool",
                          "value":true
@@ -452,11 +447,6 @@
                 {
                  "id":457,
                  "properties":[
-                        {
-                         "name":"monster",
-                         "type":"bool",
-                         "value":true
-                        }, 
                         {
                          "name":"oneway",
                          "type":"bool",
@@ -487,6 +477,34 @@
                         }, 
                         {
                          "name":"oneway",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":498,
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"diagonal2",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":499,
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"diagonal1",
                          "type":"bool",
                          "value":true
                         }]
