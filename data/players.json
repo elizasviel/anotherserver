@@ -23,13 +23,13 @@
   "w": {
     "username": "w",
     "password": "w",
-    "experience": 2130,
-    "level": 9,
-    "lastRoom": "field",
-    "lastX": 565,
-    "lastY": 304,
-    "strength": 26,
-    "maxHealth": 180,
+    "experience": 3370,
+    "level": 10,
+    "lastRoom": "field1",
+    "lastX": 1211,
+    "lastY": 464,
+    "strength": 28,
+    "maxHealth": 190,
     "inventory": [
       {
         "loot": {
@@ -37,7 +37,7 @@
           "width": 16,
           "height": 16
         },
-        "quantity": 39
+        "quantity": 68
       },
       {
         "loot": {
@@ -45,7 +45,7 @@
           "width": 24,
           "height": 24
         },
-        "quantity": 22
+        "quantity": 54
       },
       {
         "loot": {
@@ -53,7 +53,7 @@
           "width": 32,
           "height": 32
         },
-        "quantity": 17
+        "quantity": 33
       }
     ]
   },

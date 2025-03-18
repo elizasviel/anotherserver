@@ -308,62 +308,75 @@ export class map extends Room<MyRoomState> {
 
         if (input.attack && player.canAttack) {
           const attackRange = 64; // Adjust based on your attack animation
+
+          // Find the closest monster within attack range
+          let closestMonster = null;
+          let closestDistance = Number.MAX_VALUE;
+
           this.state.spawnedMonsters.forEach((monster) => {
             // Check if monster is in attack range
             const dx = Math.abs(player.x - monster.x);
             const dy = Math.abs(player.y - monster.y);
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (
-              dx < attackRange &&
-              dy < attackRange &&
+              distance < attackRange &&
+              distance < closestDistance &&
               monster.currentHealth > 0
             ) {
-              // Calculate damage based on player's strength
-              // Base damage is around 50 with a random factor
-              const baseDamage = player.strength * 5;
-              const randomFactor = 0.8 + Math.random() * 0.4; // Random between 0.8 and 1.2
-              let damage = Math.floor(baseDamage * randomFactor);
-
-              // 5% chance for critical hit (double damage)
-              const isCritical = Math.random() < 0.05;
-              if (isCritical) {
-                damage *= 2;
-              }
-
-              monster.currentHealth -= damage;
-              this.broadcast("monster-took-damage", {
-                monsterId: monster.id,
-                damage: damage,
-              });
-              if (monster.currentHealth <= 0) {
-                player.experience += monster.experience;
-                // Calculate required XP using an exponential formula
-                // This makes leveling progressively harder as level increases
-                const requiredXP = Math.floor(
-                  100 * Math.pow(1.5, player.level - 1)
-                );
-
-                if (player.experience >= requiredXP) {
-                  player.level += 1;
-                  player.strength += 2;
-                  player.maxHealth += 10;
-                  player.currentHealth = player.maxHealth;
-                  playerDataManager.updatePlayerData(player.username, {
-                    level: player.level,
-                    experience: player.experience,
-                    strength: player.strength,
-                    maxHealth: player.maxHealth,
-                  });
-
-                  // Broadcast level up event to all clients
-                  this.broadcast("player-level-up", {
-                    username: player.username,
-                    newLevel: player.level,
-                  });
-                }
-              }
+              closestMonster = monster;
+              closestDistance = distance;
             }
           });
+
+          // If we found a monster in range, damage it
+          if (closestMonster) {
+            // Calculate damage based on player's strength
+            // Base damage is around 50 with a random factor
+            const baseDamage = player.strength * 5;
+            const randomFactor = 0.8 + Math.random() * 0.4; // Random between 0.8 and 1.2
+            let damage = Math.floor(baseDamage * randomFactor);
+
+            // 5% chance for critical hit (double damage)
+            const isCritical = Math.random() < 0.05;
+            if (isCritical) {
+              damage *= 2;
+            }
+
+            closestMonster.currentHealth -= damage;
+            this.broadcast("monster-took-damage", {
+              monsterId: closestMonster.id,
+              damage: damage,
+            });
+            if (closestMonster.currentHealth <= 0) {
+              player.experience += closestMonster.experience;
+              // Calculate required XP using an exponential formula
+              // This makes leveling progressively harder as level increases
+              const requiredXP = Math.floor(
+                100 * Math.pow(1.5, player.level - 1)
+              );
+
+              if (player.experience >= requiredXP) {
+                player.level += 1;
+                player.strength += 2;
+                player.maxHealth += 10;
+                player.currentHealth = player.maxHealth;
+                playerDataManager.updatePlayerData(player.username, {
+                  level: player.level,
+                  experience: player.experience,
+                  strength: player.strength,
+                  maxHealth: player.maxHealth,
+                });
+
+                // Broadcast level up event to all clients
+                this.broadcast("player-level-up", {
+                  username: player.username,
+                  newLevel: player.level,
+                });
+              }
+            }
+          }
+
           player.isAttacking = true;
           player.canAttack = false;
 
