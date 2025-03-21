@@ -19,6 +19,7 @@ export default config({
   initializeGameServer: (gameServer) => {
     // Define different map rooms
     gameServer.define("village", map);
+    gameServer.define("village-main", map);
     gameServer.define("field", map);
     gameServer.define("field1", map);
     gameServer.define("field2", map);
@@ -47,6 +48,17 @@ export default config({
             isOneWayPlatform: false,
           },
           {
+            id: "village-main-portal",
+            x: 1550,
+            y: 620,
+            width: 64,
+            height: 64,
+            targetRoom: "village-main",
+            targetX: 50,
+            targetY: 1450,
+            isOneWayPlatform: false,
+          },
+          {
             id: "house-portal",
             x: 1300,
             y: 620,
@@ -57,10 +69,28 @@ export default config({
             targetY: 620,
             isOneWayPlatform: false,
           },
+        ],
+      });
+
+      await matchMaker.createRoom("village-main", {
+        path: "./src/maps/VillageMain.tmj",
+        monsters: [],
+        portals: [
+          {
+            id: "village-portal",
+            x: 50,
+            y: 1450,
+            width: 64,
+            height: 64,
+            targetRoom: "village",
+            targetX: 1550,
+            targetY: 620,
+            isOneWayPlatform: false,
+          },
           {
             id: "field3-portal",
-            x: 1550,
-            y: 620,
+            x: 3150,
+            y: 1450,
             width: 64,
             height: 64,
             targetRoom: "field3",
@@ -200,9 +230,9 @@ export default config({
             y: 710,
             width: 64,
             height: 64,
-            targetRoom: "village",
-            targetX: 1550,
-            targetY: 620,
+            targetRoom: "village-main",
+            targetX: 3150,
+            targetY: 1450,
             isOneWayPlatform: false,
           },
           {

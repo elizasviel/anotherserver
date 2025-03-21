@@ -1,31 +1,26 @@
 {
-  "$": {
-    "username": "$",
-    "password": "$",
-    "experience": 30,
+  "22": {
+    "username": "22",
+    "password": "2",
+    "experience": 0,
     "level": 1,
-    "lastRoom": "field2",
-    "lastX": 227,
-    "lastY": 432,
+    "lastRoom": "village-main",
+    "lastX": 136,
+    "lastY": 1456,
     "strength": 10,
     "maxHealth": 100,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Medium Coin",
-          "width": 24,
-          "height": 24
-        },
-        "quantity": 1
-      },
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 2
-      }
-    ]
+    "inventory": []
+  },
+  "w": {
+    "username": "w",
+    "password": "w",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "village-main",
+    "lastX": 600,
+    "lastY": 1456,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
   }
 }
