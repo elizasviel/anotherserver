@@ -1,84 +1,31 @@
 {
-  "3": {
-    "username": "3",
-    "password": "3",
-    "experience": 10,
+  "$": {
+    "username": "$",
+    "password": "$",
+    "experience": 30,
     "level": 1,
-    "lastRoom": "house",
-    "lastX": 129.84245271989107,
-    "lastY": 589.8157367344054,
+    "lastRoom": "field2",
+    "lastX": 227,
+    "lastY": 432,
     "strength": 10,
     "maxHealth": 100,
     "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 1
-      }
-    ]
-  },
-  "w": {
-    "username": "w",
-    "password": "w",
-    "experience": 3370,
-    "level": 10,
-    "lastRoom": "field1",
-    "lastX": 1211,
-    "lastY": 464,
-    "strength": 28,
-    "maxHealth": 190,
-    "inventory": [
-      {
-        "loot": {
-          "name": "Small Coin",
-          "width": 16,
-          "height": 16
-        },
-        "quantity": 68
-      },
       {
         "loot": {
           "name": "Medium Coin",
           "width": 24,
           "height": 24
         },
-        "quantity": 54
+        "quantity": 1
       },
       {
         "loot": {
-          "name": "Large Coin",
-          "width": 32,
-          "height": 32
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
         },
-        "quantity": 33
+        "quantity": 2
       }
     ]
-  },
-  "q": {
-    "username": "q",
-    "password": "q",
-    "experience": 10,
-    "level": 1,
-    "lastRoom": "field2",
-    "lastX": 534.4390912962625,
-    "lastY": 432,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
-  },
-  "ww": {
-    "username": "ww",
-    "password": "ww",
-    "experience": 0,
-    "level": 1,
-    "lastRoom": "field",
-    "lastX": 1330,
-    "lastY": 400,
-    "strength": 10,
-    "maxHealth": 100,
-    "inventory": []
   }
 }
