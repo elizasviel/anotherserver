@@ -9,7 +9,17 @@ import cors from "cors";
 
 let gameServerRef: Server;
 
-const { snail, bee, boar, whiteBoar, blackBoar } = MONSTER_TYPES;
+const {
+  snail,
+  bee,
+  boar,
+  whiteBoar,
+  blackBoar,
+  blackWolf,
+  whiteWolf,
+  grayWolf,
+  brownWolf,
+} = MONSTER_TYPES;
 
 export default config({
   options: {
@@ -32,7 +42,7 @@ export default config({
           {
             monsterType: snail,
             spawnInterval: 5000,
-            maxSpawned: 5,
+            maxSpawned: 10,
           },
         ],
         portals: [
@@ -222,7 +232,18 @@ export default config({
       });
       await matchMaker.createRoom("field3", {
         path: "./src/maps/FieldMap3.tmj",
-        monsters: [],
+        monsters: [
+          {
+            monsterType: blackWolf,
+            spawnInterval: 5000,
+            maxSpawned: 5,
+          },
+          {
+            monsterType: brownWolf,
+            spawnInterval: 5000,
+            maxSpawned: 5,
+          },
+        ],
         portals: [
           {
             id: "",

@@ -482,9 +482,23 @@ export class map extends Room<MyRoomState> {
 
       // Change behavior when timer expires
       if (monster.behaviorTimer >= monster.behaviorDuration) {
-        // Choose a new random behavior
-        const behaviors = ["idle", "walk", "run"];
-        const weights = [0.3, 0.4, 0.3]; // Probability weights
+        // Choose behaviors based on monster type
+        let behaviors: string[];
+        let weights: number[];
+
+        if (monster.name.includes("Wolf")) {
+          // Wolves only run or idle
+          behaviors = ["idle", "run"];
+          weights = [0.4, 0.6];
+        } else if (monster.name === "Snail") {
+          // Snails only walk or idle
+          behaviors = ["idle", "walk"];
+          weights = [0.6, 0.4];
+        } else {
+          // Default behavior for other monsters
+          behaviors = ["idle", "walk", "run"];
+          weights = [0.3, 0.4, 0.3];
+        }
 
         // Weighted random selection
         let random = Math.random();
@@ -509,7 +523,7 @@ export class map extends Room<MyRoomState> {
             monster.velocityX = 0;
             break;
           case "walk":
-            monster.velocityX = (Math.random() > 0.5 ? 1 : -1) * 0.5;
+            monster.velocityX = Math.random() > 0.5 ? 1 : -1;
             break;
           case "run":
             monster.velocityX = (Math.random() > 0.5 ? 1 : -1) * 2;
