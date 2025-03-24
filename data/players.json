@@ -1,0 +1,115 @@
+{
+  "w": {
+    "username": "w",
+    "password": "w",
+    "experience": 20780,
+    "level": 15,
+    "lastRoom": "field1",
+    "lastX": 462,
+    "lastY": 112,
+    "strength": 38,
+    "maxHealth": 240,
+    "inventory": [
+      {
+        "loot": {
+          "name": "Medium Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 18
+      },
+      {
+        "loot": {
+          "name": "White Quill",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 17
+      },
+      {
+        "loot": {
+          "name": "White Feather",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 17
+      },
+      {
+        "loot": {
+          "name": "Honey Dew",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 15
+      },
+      {
+        "loot": {
+          "name": "Small Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 15
+      },
+      {
+        "loot": {
+          "name": "Sword",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 17
+      },
+      {
+        "loot": {
+          "name": "Large Coin",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 13
+      },
+      {
+        "loot": {
+          "name": "Fig",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 8
+      },
+      {
+        "loot": {
+          "name": "Ruby Grape",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 9
+      },
+      {
+        "loot": {
+          "name": "Grape Fruit",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 9
+      },
+      {
+        "loot": {
+          "name": "Muscat Grape",
+          "width": 16,
+          "height": 16
+        },
+        "quantity": 10
+      }
+    ]
+  },
+  "ww": {
+    "username": "ww",
+    "password": "ww",
+    "experience": 0,
+    "level": 1,
+    "lastRoom": "field",
+    "lastX": 230,
+    "lastY": 400,
+    "strength": 10,
+    "maxHealth": 100,
+    "inventory": []
+  }
+}
